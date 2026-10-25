@@ -1,0 +1,62 @@
+{
+  "institution_id": "AICTE-1-987654321",
+  "institution_name": "Apex Institute of Technology",
+  "academic_year": "2025-26",
+  "campus_location": {
+    "address": "Sector 14, Hinjewadi Knowledge Park, Pune, Maharashtra 411057",
+    "latitude": 18.52043,
+    "longitude": 73.856744
+  },
+  "application_type": "Extension of Approval (EoA) with Intake Increase",
+  "declared_claims": {
+    "programme": "Engineering & Technology (UG)",
+    "course": "Computer Science & Engineering",
+    "previous_intake": 120,
+    "requested_intake": 180,
+    "claimed_lab_area_sqm": 640.0
+  },
+  "declared_faculty_members": [
+    {
+      "name": "Dr. R.K. Sharma",
+      "pan_or_aadhaar": "ABCD-1234-9999",
+      "designation": "Professor & HOD",
+      "department": "CSE"
+    },
+    {
+      "name": "Prof. Amit Verma",
+      "pan_or_aadhaar": "BCDE-2345-8888",
+      "designation": "Associate Professor",
+      "department": "CSE"
+    },
+    {
+      "name": "Dr. Sneha Patil",
+      "pan_or_aadhaar": "CDEF-3456-7777",
+      "designation": "Assistant Professor",
+      "department": "CSE"
+    },
+    {
+      "name": "Prof. Rahul Kulkarni",
+      "pan_or_aadhaar": "DEFG-4567-6666",
+      "designation": "Assistant Professor",
+      "department": "CSE"
+    },
+    {
+      "name": "Prof. Pooja Nair",
+      "pan_or_aadhaar": "EFGH-5678-5555",
+      "designation": "Assistant Professor",
+      "department": "CSE"
+    },
+    {
+      "name": "Prof. Vikram Joshi",
+      "pan_or_aadhaar": "FGHI-6789-4444",
+      "designation": "Assistant Professor",
+      "department": "CSE"
+    },
+    {
+      "name": "Prof. Meera Deshmukh",
+      "pan_or_aadhaar": "GHIJ-7890-3333",
+      "designation": "Assistant Professor",
+      "department": "CSE"
+    }
+  ]
+}

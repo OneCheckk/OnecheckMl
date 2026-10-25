@@ -1,0 +1,15 @@
+{
+  "institution_id": "AICTE-1-987654321",
+  "institution_name": "Apex Institute of Technology",
+  "approval_history_2024_25": {
+    "status": "APPROVED",
+    "approved_intake": 120,
+    "approved_faculty_count": 6,
+    "carried_forward_deficiencies": []
+  },
+  "finance_ledger_2025_26": {
+    "ter_fee_required_inr": 250000,
+    "ter_payment_status": "PAYMENT_PENDING",
+    "last_payment_date": null
+  }
+}
