@@ -710,3 +710,123 @@ class OcrClaimVerifyResponse(BaseModel):
     model_config = {"populate_by_name": True}
 
 
+# ════════════════════════════════════════════════════════════════════
+#  Engine 6 — Ghost Faculty Radar & Identity Matcher
+# ════════════════════════════════════════════════════════════════════
+
+class FacultyMatchBackendRequest(BaseModel):
+    """Node.js backend verificationClient contract: { normalizedNames: [...] }"""
+    normalized_names: List[str] = Field(
+        default_factory=list,
+        alias="normalizedNames",
+        description="List of faculty names to cross-compare pairwise.",
+    )
+
+    model_config = {"populate_by_name": True}
+
+
+class FacultyMatchItem(BaseModel):
+    source: str
+    target: str
+    similarity: float
+
+
+class FacultyMatchBackendResponse(BaseModel):
+    matches: List[FacultyMatchItem] = Field(default_factory=list)
+
+
+class GhostFacultyScanRequest(BaseModel):
+    """Direct cross-institution DPDP scan payload."""
+    candidate: Dict[str, Any] = Field(
+        description="Candidate faculty info: name, aadhaar_or_pan, current_institution, department"
+    )
+    stored_roster: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Active faculty roster of all other colleges with salted privacy_hash"
+    )
+
+
+class GhostFacultyScanResponse(BaseModel):
+    status: str
+    is_ghost_faculty_detected: bool
+    verdict: str
+    exact_id_collisions: List[Dict[str, Any]] = Field(default_factory=list)
+    fuzzy_name_collisions: List[Dict[str, Any]] = Field(default_factory=list)
+    candidate_privacy_hash: str
+
+
+# ════════════════════════════════════════════════════════════════════
+#  Engine 7 — Scrutiny Calendar & Dynamic Validity
+# ════════════════════════════════════════════════════════════════════
+
+class ValidityCheckRequest(BaseModel):
+    expiry_date: str = Field(
+        alias="expiryDate",
+        description="Certificate expiry date string (e.g. 15/05/2025 or 2025-05-15)",
+    )
+    scrutiny_anchor_date: Optional[str] = Field(
+        default=None,
+        alias="scrutinyAnchorDate",
+        description="Committee scrutiny decision date (defaults to today if omitted)",
+    )
+    session_start_date: Optional[str] = Field(
+        default=None,
+        alias="sessionStartDate",
+        description="Academic session start date (e.g. 2025-08-01)",
+    )
+
+    model_config = {"populate_by_name": True}
+
+
+class ValidityCheckResponse(BaseModel):
+    status: str
+    verdict: str
+    expiry_date: str
+    scrutiny_anchor_date: str
+    session_start_date: str
+    days_remaining_from_scrutiny: int
+    days_remaining_from_session_start: int
+    is_valid_on_scrutiny_date: bool
+    is_valid_for_academic_session: bool
+    alert: Optional[str] = None
+
+
+# ════════════════════════════════════════════════════════════════════
+#  Engine 8 — Blueprint Vision Architect
+# ════════════════════════════════════════════════════════════════════
+
+class BlueprintBackendRequest(BaseModel):
+    storage_key: Optional[str] = Field(
+        default=None,
+        alias="storageKey",
+        description="Opaque storage key or relative path to blueprint CAD drawing",
+    )
+    claimed_area: float = Field(
+        default=640.0,
+        alias="claimedArea",
+        description="Claimed instructional / computer lab area in sq.m",
+    )
+    base64_content: Optional[str] = Field(
+        default=None,
+        alias="base64Content",
+        description="Base64-encoded blueprint image/PDF",
+    )
+
+    model_config = {"populate_by_name": True}
+
+
+class BlueprintAnalysisResponse(BaseModel):
+    status: str
+    verdict: str
+    engine_method: str
+    claimed_lab_sqm: float
+    extracted_lab_sqm: float
+    deficit_sqm: float
+    tolerance_sqm: float
+    total_instructional_rooms_found: int
+    rooms: List[Dict[str, Any]] = Field(default_factory=list)
+    architect_registration: Optional[str] = None
+    message: str
+
+
+

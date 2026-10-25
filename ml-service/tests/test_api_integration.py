@@ -38,7 +38,7 @@ assert res.status_code == 200, f"Health check failed: {res.status_code}"
 health_data = res.json()
 print(f"\n[OK] 1. Health Check: {health_data}")
 assert health_data["status"] == "healthy"
-assert health_data["active_engines"] == 5
+assert health_data["active_engines"] == 8
 
 # 2. Engine 1: PDF Forensics via /api/pdf-forensics (Backend Contract)
 clean_pdf_bytes = (
@@ -383,6 +383,130 @@ print(f"   IsMatched: {legit_res['isMatched']}")
 assert legit_res["verdict"] == "VERIFIED_ACCURATE"
 assert legit_res["isMatched"] is True
 
+# 21. Engine 6: Faculty Matching via /api/faculty-match (Node.js Backend Contract)
+fac_req = {
+    "normalizedNames": [
+        "Dr. R.K. Sharma",
+        "Dr. Ram Kumar Sharma",
+        "Prof. Amit Verma"
+    ]
+}
+res = client.post("/api/faculty-match", json=fac_req)
+assert res.status_code == 200, f"Faculty match failed: {res.text}"
+fac_res = res.json()
+print(f"\n[OK] 21. Faculty Matcher (/api/faculty-match Backend Contract):")
+print(f"   Matches found: {len(fac_res['matches'])}")
+assert len(fac_res["matches"]) >= 1
+top_match = fac_res["matches"][0]
+print(f"   Match: {top_match['source']} <-> {top_match['target']} (Similarity: {top_match['similarity']})")
+assert top_match["similarity"] >= 0.85
+
+# 22. Engine 6: Ghost Faculty DPDP Cross-Institution Collision Scan
+candidate = {
+    "name": "Dr. R.K. Sharma",
+    "aadhaar_or_pan": "9876-5432-1098",
+    "department": "CSE",
+    "current_institution": "Apex Institute of Technology"
+}
+stored_roster = [
+    {
+        "institution": "Greenfield Institute of Technology",
+        "name": "Dr. Ram Kumar Sharma",
+        "department": "CSE",
+        "privacy_hash": "a6ba30d626a3f4e24eb37452d9b626e95267f53f6e12e128148b30f782f9efab"
+    },
+    {
+        "institution": "Apex Institute of Technology",
+        "name": "Dr. R.K. Sharma",
+        "department": "CSE",
+        "privacy_hash": "some_hash"
+    }
+]
+res = client.post("/faculty/fuzzy-match-faculty", json={"candidate": candidate, "stored_roster": stored_roster})
+assert res.status_code == 200, f"Ghost faculty scan failed: {res.text}"
+ghost_res = res.json()
+print(f"\n[ALERT] 22. Ghost Faculty DPDP Scan (/faculty/fuzzy-match-faculty):")
+print(f"   Verdict: {ghost_res['verdict']}")
+print(f"   Ghost Detected: {ghost_res['is_ghost_faculty_detected']}")
+print(f"   Candidate Privacy Hash: {ghost_res['candidate_privacy_hash']}")
+assert ghost_res["is_ghost_faculty_detected"] is True
+assert ghost_res["verdict"] == "MISMATCH_DETECTED"
+
+# 23. Engine 7: Scrutiny Calendar Proactive Academic Session Lapsed Check
+validity_payload = {
+    "expiryDate": "15/05/2025",
+    "scrutinyAnchorDate": "2025-05-01",
+    "sessionStartDate": "2025-08-01"
+}
+res = client.post("/api/validity-check", json=validity_payload)
+assert res.status_code == 200, f"Validity check failed: {res.text}"
+val_res = res.json()
+print(f"\n[ALERT] 23. Scrutiny Calendar (/api/validity-check Lapsed Session Rule):")
+print(f"   Verdict: {val_res['verdict']}")
+print(f"   Valid on Scrutiny Date: {val_res['is_valid_on_scrutiny_date']}")
+print(f"   Valid for Academic Session: {val_res['is_valid_for_academic_session']}")
+print(f"   Alert: {val_res['alert']}")
+assert val_res["verdict"] == "EXPIRED"
+assert val_res["is_valid_on_scrutiny_date"] is True
+assert val_res["is_valid_for_academic_session"] is False
+
+# 24. Engine 7: Scrutiny Calendar Fully Valid Certificate
+res = client.post("/api/validity-check", json={"expiryDate": "2027-12-31", "scrutinyAnchorDate": "2025-05-01"})
+assert res.status_code == 200
+val_ok = res.json()
+print(f"\n[OK] 24. Scrutiny Calendar (/api/validity-check Valid Certificate):")
+print(f"   Verdict: {val_ok['verdict']}")
+assert val_ok["verdict"] == "VERIFIED"
+
+# 25. Engine 8: Blueprint Architect Backend Contract (/api/blueprint fallback)
+res = client.post("/api/blueprint", json={"storageKey": "non_existent.png", "claimedArea": 640.0})
+assert res.status_code == 200, f"Blueprint fallback failed: {res.text}"
+bp_back_res = res.json()
+print(f"\n[OK] 25. Blueprint Architect (/api/blueprint Baseline Fallback):")
+print(f"   Verdict: {bp_back_res['verdict']}")
+print(f"   Extracted Area: {bp_back_res['extracted_lab_sqm']} sq.m")
+assert bp_back_res["status"] == "SUCCESS"
+
+# 26. Engine 8: Blueprint Architect CAD Area Deficit OCR
+blueprint_canvas = Image.new("RGB", (1000, 700), color=(255, 255, 255))
+d = ImageDraw.Draw(blueprint_canvas)
+d.rectangle([(20, 20), (980, 680)], outline=(0, 0, 0), width=3)
+d.text((50, 50), "APEX INSTITUTE OF TECHNOLOGY - ACADEMIC BLOCK A", fill=(0, 0, 0))
+d.text((50, 100), "Room 101 - Central Computer Lab - 20.5m x 20.0m (410.0 sq.m)", fill=(0, 0, 0))
+d.text((50, 150), "Room 102 - Server Room - 10.0m x 8.0m (80.0 sq.m)", fill=(0, 0, 0))
+d.text((50, 200), "Room 103 - Faculty Lounge - 120.0 sq.m", fill=(0, 0, 0))
+d.text((50, 300), "Architect License: CA/2018/74199", fill=(0, 0, 0))
+
+bp_bytes = io.BytesIO()
+blueprint_canvas.save(bp_bytes, format="PNG")
+bp_bytes.seek(0)
+
+res = client.post(
+    "/blueprint/blueprint-extract",
+    files={"file": ("blueprint.png", bp_bytes.getvalue(), "image/png")},
+    data={"claimed_lab_sqm": 640.0}
+)
+assert res.status_code == 200, f"Blueprint extract failed: {res.text}"
+bp_res = res.json()
+print(f"\n[ALERT] 26. Blueprint Vision Architect (/blueprint/blueprint-extract CAD Audit):")
+print(f"   Verdict: {bp_res['verdict']}")
+print(f"   Claimed Lab Area: {bp_res['claimed_lab_sqm']} sq.m")
+print(f"   Extracted Lab Area: {bp_res['extracted_lab_sqm']} sq.m")
+print(f"   Deficit: {bp_res['deficit_sqm']} sq.m")
+print(f"   Message: {bp_res['message']}")
+assert bp_res["verdict"] == "MISMATCH_DETECTED"
+assert bp_res["extracted_lab_sqm"] == 410.0
+assert bp_res["deficit_sqm"] == 230.0
+
 print("\n" + "=" * 70)
-print("  All 20 API Integration Tests PASSED [OK] (All 5 ML Engines Fully Operational!)")
+print("  All 26 API Integration Tests PASSED [OK] (All 8 ML Engines Fully Operational!)")
 print("=" * 70 + "\n")
+
+
+def test_all_8_engines_verified():
+    """Pytest entrypoint confirming all 26 assertions passed during execution."""
+    assert health_data["active_engines"] == 8
+    assert legit_res["verdict"] == "VERIFIED_ACCURATE"
+    assert ghost_res["is_ghost_faculty_detected"] is True
+    assert val_res["verdict"] == "EXPIRED"
+    assert bp_res["deficit_sqm"] == 230.0

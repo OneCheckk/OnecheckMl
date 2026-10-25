@@ -29,6 +29,9 @@ from routers.forensics_router import router as forensics_router
 from routers.imagehash_router import router as imagehash_router
 from routers.geofence_router import router as geofence_router
 from routers.ocr_router import router as ocr_router
+from routers.faculty_router import router as faculty_router
+from routers.validity_router import router as validity_router
+from routers.blueprint_router import router as blueprint_router
 
 # ── Logging ───────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -48,7 +51,8 @@ async def lifespan(app: FastAPI):
     logger.info(
         "Active engines: Engine 1 (PDF Forensics), Engine 2 (ELA Heatmap), "
         "Engine 3 (Perceptual Hash), Engine 4 (500m Geo-Fence EXIF), "
-        "Engine 5 (Tesseract OCR & Regex)"
+        "Engine 5 (Tesseract OCR & Regex), Engine 6 (Ghost Faculty Radar), "
+        "Engine 7 (Scrutiny Calendar), Engine 8 (Blueprint Vision Architect)"
     )
     yield
     logger.info("OneCheck ML Service shutting down.")
@@ -99,7 +103,7 @@ def health_check() -> HealthResponse:
         status="healthy",
         service="OneCheck-ML-Engine",
         runtime="Python 3.10+ CPU",
-        active_engines=5,  # PDF + ELA + pHash + Geo-Fence + Tesseract OCR
+        active_engines=8,  # PDF + ELA + pHash + Geo-Fence + OCR + Faculty + Validity + Blueprint
     )
 
 
@@ -175,6 +179,51 @@ app.include_router(
 # Backend-contract alias — /api/ocr maps to ocr_router's /ocr route
 app.include_router(
     ocr_router,
+    prefix="/api",
+    tags=["Backend Contract (Node.js compat.)"],
+    include_in_schema=False,
+)
+
+# ── Engine 6: Ghost Faculty Radar & Identity Matcher ─────────────────────
+app.include_router(
+    faculty_router,
+    prefix="/faculty",
+    tags=["Engine 6: Ghost Faculty Radar"],
+)
+
+# Backend-contract alias — /api/faculty-match and /api/fuzzy-match-faculty
+app.include_router(
+    faculty_router,
+    prefix="/api",
+    tags=["Backend Contract (Node.js compat.)"],
+    include_in_schema=False,
+)
+
+# ── Engine 7: Scrutiny Calendar & Dynamic Validity ───────────────────────
+app.include_router(
+    validity_router,
+    prefix="/validity",
+    tags=["Engine 7: Scrutiny Calendar"],
+)
+
+# Backend-contract alias — /api/validity-check
+app.include_router(
+    validity_router,
+    prefix="/api",
+    tags=["Backend Contract (Node.js compat.)"],
+    include_in_schema=False,
+)
+
+# ── Engine 8: Blueprint Vision Architect ─────────────────────────────────
+app.include_router(
+    blueprint_router,
+    prefix="/blueprint",
+    tags=["Engine 8: Blueprint Vision Architect"],
+)
+
+# Backend-contract alias — /api/blueprint and /api/blueprint-extract
+app.include_router(
+    blueprint_router,
     prefix="/api",
     tags=["Backend Contract (Node.js compat.)"],
     include_in_schema=False,
