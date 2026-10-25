@@ -105,7 +105,11 @@ def health_check():
         "service": "OneCheck AICTE Scrutiny Microservice (Engines 6, 7 & 8)",
         "mock_mode": MOCK_MODE,
         "dependencies": {
-            "tesseract": bool(sh.which("tesseract")) or os.path.exists(os.getenv("TESSERACT_PATH", "")),
+            "tesseract": (
+                bool(sh.which("tesseract"))
+                or os.path.exists(r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+                or os.path.exists(os.getenv("TESSERACT_PATH", ""))
+            ),
             "gemini_vision_enabled": blueprint_engine.client is not None,
         },
         "engines": {

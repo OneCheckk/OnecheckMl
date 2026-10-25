@@ -115,18 +115,36 @@ class BlueprintEngine:
         """
         try:
             import pytesseract
+            import shutil
+
+            _KNOWN_TESSERACT_PATHS = [
+                r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+                r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+                r"C:\Users\krish\AppData\Local\Programs\Tesseract-OCR\tesseract.exe",
+            ]
+            if not shutil.which("tesseract"):
+                for p in _KNOWN_TESSERACT_PATHS:
+                    if os.path.exists(p):
+                        pytesseract.pytesseract.tesseract_cmd = p
+                        break
+
             if file_path.lower().endswith(".pdf"):
                 from pdf2image import convert_from_path
                 img = convert_from_path(file_path, first_page=1, last_page=1)[0]
             else:
                 img = Image.open(file_path)
-            text = pytesseract.image_to_string(self.preprocess_image(img), config="--psm 3")
+
+            # Try direct OCR first (preserves clean line flow and room associations)
+            text = pytesseract.image_to_string(img)
+            rooms = self._parse_rooms(text)
+            if not rooms:
+                text = pytesseract.image_to_string(self.preprocess_image(img), config="--psm 3")
+                rooms = self._parse_rooms(text)
         except Exception as e:
             return {"status": "ERROR", "verdict": "MANUAL_REVIEW_REQUIRED",
                     "engine_method": "Tesseract OCR layout parse (offline)",
                     "message": f"Could not OCR blueprint: {e}"}
 
-        rooms = self._parse_rooms(text)
         arch = re.search(r'(CA\s*/\s*\d{4}\s*/\s*\d+)', text, re.I)
         parsed = {"rooms": rooms, "architect_registration": arch.group(1).replace(" ", "") if arch else None}
         return self._format_blueprint_output(parsed, claimed_lab_sqm, method="Tesseract OCR layout parse (offline)")
