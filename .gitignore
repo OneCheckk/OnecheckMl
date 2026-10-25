@@ -1,0 +1,32 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments & Packages
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Temporary uploads / logs / artifacts
+temp_uploads/*
+!temp_uploads/.gitkeep
+heatmaps/*
+*.log
+
+# Reference archives
+*.zip
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

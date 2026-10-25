@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OneCheck ML Engines — Slide-by-Slide Pitch Presentation</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.25);
+      --accent: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      height: 60px;
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .slide-counter {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      background: #1f2937;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: #374151;
+      color: white;
+      border-color: #4b5563;
+    }
+
+    .btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    /* Progress bar */
+    .progress-bar-container {
+      height: 4px;
+      width: 100%;
+      background: #1f2937;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+      width: 8.33%;
+      transition: width 0.3s ease;
+    }
+
+    /* Slides Container */
+    main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      transform: scale(0.98);
+      padding: 30px 48px;
+      overflow-y: auto;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .slide-inner {
+      max-width: 1200px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Slide Content Typography */
+    .slide-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .model-number {
+      background: #1e3a8a;
+      color: #93c5fd;
+      border: 1px solid #2563eb;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nickname-badge {
+      background: linear-gradient(135deg, #065f46, #047857);
+      color: #a7f3d0;
+      border: 1px solid #10b981;
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 5px 14px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slide-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .slide-subtitle {
+      font-size: 1.1rem;
+      color: #9ca3af;
+      margin-top: -12px;
+    }
+
+    /* Feature Grid */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 8px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+      margin-top: 8px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-header.problem { color: #f87171; }
+    .card-header.solution { color: #60a5fa; }
+    .card-header.trigger { color: #fbbf24; }
+    .card-header.tech { color: #a78bfa; }
+
+    .card-body {
+      font-size: 0.98rem;
+      line-height: 1.6;
+      color: #d1d5db;
+    }
+
+    .highlight-pill {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #93c5fd;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .trigger-box {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 4px solid var(--warning);
+      padding: 14px 18px;
+      border-radius: 0 10px 10px 0;
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: #fef3c7;
+      line-height: 1.5;
+    }
+
+    /* Speaker Notes Box (Toggleable) */
+    .speaker-notes-drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #0f172a;
+      border-top: 2px solid var(--primary);
+      padding: 18px 32px;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 90;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .speaker-notes-drawer.open {
+      transform: translateY(0);
+    }
+
+    .notes-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #60a5fa;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notes-content {
+      font-size: 1.05rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+      font-style: normal;
+    }
+
+    /* Slide Overview Modal */
+    .overview-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(11, 15, 25, 0.94);
+      backdrop-filter: blur(16px);
+      z-index: 200;
+      display: none;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    .overview-modal.open {
+      display: block;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1400px;
+      margin: 20px auto;
+    }
+
+    .overview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .overview-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px var(--primary-glow);
+    }
+
+    .overview-card.current {
+      border-color: var(--accent);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    /* Cheatsheet Table */
+    .cheat-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin-top: 10px;
+    }
+
+    .cheat-table th {
+      background: #1f2937;
+      padding: 10px 14px;
+      text-align: left;
+      color: #9ca3af;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cheat-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #1f2937;
+      color: #d1d5db;
+    }
+
+    .cheat-table tr:hover {
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    /* Bottom Control Bar */
+    footer {
+      height: 54px;
+      background: #111827;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .shortcut-hints {
+      display: flex;
+      gap: 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    kbd {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      color: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header>
+    <div class="brand">
+      <span>🛡️ OneCheck</span>
+      <span class="brand-badge">SIH 2025 AICTE</span>
+      <span style="color: #4b5563; margin: 0 4px;">|</span>
+      <span style="font-size: 0.95rem; font-weight: 500; color: #9ca3af;">ML Engines Slide-by-Slide Walkthrough</span>
+    </div>
+
+    <div class="slide-counter" id="slideCounter">Slide 1 of 12</div>
+
+    <div class="header-controls">
+      <button class="btn" id="btnNotes" onclick="toggleNotes()">
+        <span>🎙️ Speaker Notes</span> <kbd>S</kbd>
+      </button>
+      <button class="btn" id="btnOverview" onclick="toggleOverview()">
+        <span>📑 Overview</span> <kbd>O</kbd>
+      </button>
+      <button class="btn" id="btnFullscreen" onclick="toggleFullscreen()">
+        <span>⛶ Fullscreen</span> <kbd>F</kbd>
+      </button>
+    </div>
+  </header>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- Main Slides Window -->
+  <main>
+
+    <!-- SLIDE 1: Title & The 10,000 College Problem -->
+    <section class="slide active" data-slide="1">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Executive Overview</span>
+          <span class="nickname-badge">🚀 High-Throughput Forensics</span>
+        </div>
+        <h1 class="slide-title">The Hybrid AI Forensics Architecture</h1>
+        <p class="slide-subtitle">Solving the AICTE Peak Scrutiny Crisis (10,000+ Colleges, 500,000+ Pages, 3-Week Window)</p>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-header problem">⚠️ The Scrutiny Crisis</div>
+            <div class="card-body">
+              Every year in April-May, over 10,000 colleges submit Extension of Approval (EoA) applications. Human scrutiny committees drown in lakhs of scanned PDFs. Forged stamps, spliced text, and duplicate photos slip through undetected.
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header solution">💡 Why Heavy LLMs Fail</div>
+            <div class="card-body">
+              Running monolithic Vision LLMs on 5 lakh multi-page PDFs crashes infrastructure, takes hours per college, costs crores in government cloud GPU bills, and hallucinate on regulatory clauses.
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header trigger">⚡ The OneCheck Solution</div>
+            <div class="card-body">
+              A <strong>Hybrid Multi-Tiered Pipeline</strong>: 90% of checks run on ultra-fast, deterministic CPU forensic engines (<350MB RAM, <2s latency, 0 GPU cost), reserving cloud Multimodal AI selectively for complex architectural floor plans.
+            </div>
+          </div>
+        </div>
+
+        <div class="trigger-box">
+          💡 <strong>Core Pitch Line:</strong> "OneCheck combines deterministic mathematical speed with selective foundation AI vision — zero hallucinations, sub-2s document turnaround, and 100% auditable evidence."
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: Cheatsheet Table -->
+    <section class="slide" data-slide="2">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Quick Reference</span>
+          <span class="nickname-badge">🌟 Desi Nicknames Cheatsheet</span>
+        </div>
+        <h1 class="slide-title">Meet the 8 Engines in Plain Language</h1>
+        <p class="slide-subtitle">How every model maps from technical algorithms to simple, intuitive concepts</p>
+
+        <table class="cheat-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Simple Nickname</th>
+              <th>Technical Name</th>
+              <th>Primary Target</th>
+              <th>Latency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1</strong></td>
+              <td>🕵️ <strong>The File Time Machine</strong></td>
+              <td>PDF Stream & Revision Forensics</td>
+              <td>Photoshop/Canva revisions, ghost text layers</td>
+              <td><span class="highlight-pill">~120ms</span></td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td>🩻 <strong>Digital X-Ray / Stamp Scanner</strong></td>
+              <td>Error Level Analysis (ELA) Heatmap</td>
+              <td>Forged signatures, pasted government seals</td>
+              <td><span class="highlight-pill">~350ms</span></td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td>📸 <strong>Carbon-Copy / Duplicate Catcher</strong></td>
+              <td>64-bit DCT Perceptual Hashing (pHash)</td>
+              <td>Recycled computer lab & campus photos</td>
+              <td><span class="highlight-pill">~45ms</span></td>
+            </tr>
+            <tr>
+              <td><strong>4</strong></td>
+              <td>📍 <strong>Satellite Pin Tracker</strong></td>
+              <td>500m Geo-Fence EXIF Haversine</td>
+              <td>Fake off-site photos taken away from campus</td>
+              <td><span class="highlight-pill">~15ms</span></td>
+            </tr>
+            <tr>
+              <td><strong>5</strong></td>
+              <td>👓 <strong>The Smart Clause Reader</strong></td>
+              <td>Tesseract OCR + Regulatory Regex</td>
+              <td>Intake capacity vs. approval mismatch</td>
+              <td><span class="highlight-pill">~800ms</span></td>
+            </tr>
+            <tr>
+              <td><strong>6</strong></td>
+              <td>👻 <strong>Moonlighting & Ghost Radar</strong></td>
+              <td>RapidFuzz + Keyed HMAC Reconciler</td>
+              <td>Professors drawing salaries at two colleges</td>
+              <td><span class="highlight-pill">~95ms</span></td>
+            </tr>
+            <tr>
+              <td><strong>7</strong></td>
+              <td>🗓️ <strong>The Scrutiny Calendar</strong></td>
+              <td>Validity-at-Decision-Date Engine</td>
+              <td>Certificates expiring before committee meeting</td>
+              <td><span class="highlight-pill">~5ms</span></td>
+            </tr>
+            <tr>
+              <td><strong>8</strong></td>
+              <td>📐 <strong>The Blueprint Architect</strong></td>
+              <td>Multimodal Gemini 1.5 Flash Vision</td>
+              <td>Carpet area & room dimensions from floor plans</td>
+              <td><span class="highlight-pill">~1800ms</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Model 1 — PDF Stream Forensics -->
+    <section class="slide" data-slide="3">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Engine 1 / 8</span>
+          <span class="nickname-badge">🕵️ The File Time Machine</span>
+        </div>
+        <h1 class="slide-title">Digital PDF Revision Forensics</h1>
+        <p class="slide-subtitle">Uncovering document edit history, spliced revisions, and invisible text</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header problem">⚠️ The Fraud Trick</div>
+            <div class="card-body">
+              Colleges take an official government letterhead from a previous year, open it in Photoshop or Canva, change the approval year and sanctioned student intake, and save it as a new PDF. Some even hide invisible white text in the background to fool keyword-matching filters.
+            </div>
+            <div class="card-header tech" style="margin-top: 12px;">⚙️ How the Engine Catches It</div>
+            <div class="card-body">
+              A PDF is a container holding multiple incremental revisions. Our engine parses the raw binary byte stream:
+              <ul style="margin-left: 20px; margin-top: 6px;">
+                <li>Counts <code>startxref</code> tables to detect how many times the file was modified.</li>
+                <li>Compares <code>/ModDate</code> against <code>/CreationDate</code>.</li>
+                <li>Scans Producer metadata for suspicious editing tools (Photoshop, Acrobat Distiller, Canva).</li>
+                <li>Extracts text objects with RGB <code>(1, 1, 1)</code> to flag invisible ghost text.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header trigger">🎯 Apex Institute Demo Trigger</div>
+            <div class="card-body">
+              <strong>Document:</strong> Fire Safety NOC PDF.<br><br>
+              <strong>Forensic Finding:</strong> Spliced revision stream detected.<br>
+              <span class="highlight-pill">Producer: Adobe Photoshop CC 2023</span><br>
+              <span class="highlight-pill">Revision Count: 3 incremental saves</span><br><br>
+              <strong>Verdict:</strong> <code>TAMPER_SUSPECTED</code> — The validity year was overwritten digitally!
+            </div>
+            <div class="trigger-box">
+              ⏱️ <strong>Execution Latency:</strong> 120ms (pure binary parsing, no rasterization needed).
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Model 2 — Error Level Analysis -->
+    <section class="slide" data-slide="4">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Engine 2 / 8</span>
+          <span class="nickname-badge">🩻 The Digital X-Ray / Stamp Scanner</span>
+        </div>
+        <h1 class="slide-title">Error Level Analysis (ELA) Heatmap</h1>
+        <p class="slide-subtitle">Detecting spliced signatures, pasted stamps, and digital image manipulation</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header problem">⚠️ The Fraud Trick</div>
+            <div class="card-body">
+              A college cuts the stamp and signature of a District Magistrate from a real land document and pastes it onto a fake Building Completion or Land Title certificate. To the naked human eye, the scanned resolution looks identical.
+            </div>
+            <div class="card-header tech" style="margin-top: 12px;">⚙️ How the Engine Catches It</div>
+            <div class="card-body">
+              Whenever a JPEG image is saved, high frequencies compress at a known error level. If an external element is pasted into the image, that pasted region has a completely different compression generation error level.
+              <ul style="margin-left: 20px; margin-top: 6px;">
+                <li>We resave the image in memory at a controlled 90% JPEG quality.</li>
+                <li>Compute the absolute pixel-by-pixel difference delta: <code>cv2.absdiff()</code>.</li>
+                <li>Scale differences to highlight forged zones: genuine areas fade to dark gray, while pasted signatures glow brightly like a neon sign.</li>
+                <li>Compute statistical variance: score > 0.40 triggers fraud alert.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header trigger">🎯 Apex Institute Demo Trigger</div>
+            <div class="card-body">
+              <strong>Document:</strong> Land Title Deed (Tehsildar Signature).<br><br>
+              <strong>Forensic Finding:</strong> Tamper Score = <strong>0.42</strong> (Threshold: 0.35).<br>
+              The Sub-Registrar seal was imported from a 2018 document and pasted onto the 2025 deed.<br><br>
+              <strong>System Action:</strong> Generates interactive side-by-side ELA Heatmap with high-glow bounding box around the stamp for the human evaluator.
+            </div>
+            <div class="trigger-box">
+              ⏱️ <strong>Execution Latency:</strong> 350ms on CPU using NumPy matrix ops.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Model 3 — Perceptual Image Hashing -->
+    <section class="slide" data-slide="5">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Engine 3 / 8</span>
+          <span class="nickname-badge">📸 The Carbon-Copy / Duplicate Photo Catcher</span>
+        </div>
+        <h1 class="slide-title">Perceptual Image Hashing (pHash)</h1>
+        <p class="slide-subtitle">Crushing infrastructure photo recycling and multi-branch image re-use</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header problem">⚠️ The Fraud Trick</div>
+            <div class="card-body">
+              An educational trust runs three engineering colleges across a state. They have one state-of-the-art Computer Lab and Physics Lab. They photograph it once, crop it slightly, adjust the brightness, and submit the same photos for all 3 college approvals.
+            </div>
+            <div class="card-header tech" style="margin-top: 12px;">⚙️ How the Engine Catches It</div>
+            <div class="card-body">
+              Traditional cryptographic hashes (like MD5 or SHA-256) change completely if even 1 pixel is altered. <strong>pHash mimics human perception</strong>:
+              <ul style="margin-left: 20px; margin-top: 6px;">
+                <li>Downscales photo to 32x32 grayscale.</li>
+                <li>Computes 2D Discrete Cosine Transform (DCT) to isolate structural frequencies.</li>
+                <li>Generates a 64-bit fingerprint string.</li>
+                <li>Calculates <strong>Hamming Distance</strong> (number of bit differences) against all previously submitted photos in the central index.</li>
+                <li>Hamming Distance &le; 4 indicates the identical photo despite cropping or re-encoding.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header trigger">🎯 Apex Institute Demo Trigger</div>
+            <div class="card-body">
+              <strong>Uploaded Photo:</strong> Advanced CAD/CAM Computer Lab.<br><br>
+              <strong>Database Match:</strong> Hamming distance = <strong>2</strong> against photo submitted in 2024 by <em>"Apex City Campus (College ID: APEX-004)"</em>.<br><br>
+              <strong>Verdict:</strong> <code>RECYCLED_INFRASTRUCTURE_FRAUD</code> — College flagged for re-using sister institute facilities!
+            </div>
+            <div class="trigger-box">
+              ⏱️ <strong>Execution Latency:</strong> 45ms per image comparison.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: Model 4 — 500m Geo-Fence EXIF -->
+    <section class="slide" data-slide="6">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Engine 4 / 8</span>
+          <span class="nickname-badge">📍 Satellite Pin Tracker</span>
+        </div>
+        <h1 class="slide-title">500m Geo-Fence EXIF Spatial Engine</h1>
+        <p class="slide-subtitle">Verifying that site inspection photos were genuinely taken on the registered campus</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header problem">⚠️ The Fraud Trick</div>
+            <div class="card-body">
+              AICTE requires geocoded photos of laboratories, sports facilities, and barrier-free ramps. Colleges download stock photos of fancy campus buildings from the internet or take photos inside an off-campus commercial office or shopping complex.
+            </div>
+            <div class="card-header tech" style="margin-top: 12px;">⚙️ How the Engine Catches It</div>
+            <div class="card-body">
+              Every genuine camera or smartphone photo embeds EXIF GPS coordinates:
+              <ul style="margin-left: 20px; margin-top: 6px;">
+                <li>The engine parses EXIF Tag <code>0x8825</code> (GPSInfo) to extract latitude & longitude.</li>
+                <li>Pulls the college's approved master campus boundaries from AICTE records.</li>
+                <li>Computes spherical surface distance using the <strong>Haversine Formula</strong>:
+                  <div style="font-family: monospace; font-size: 0.85rem; background: #000; padding: 6px; border-radius: 6px; margin: 6px 0;">
+                    d = 2R &times; asin(&radic;(sin&sup2;(&Delta;&phi;/2) + cos(&phi;1)cos(&phi;2)sin&sup2;(&Delta;&lambda;/2)))
+                  </div>
+                </li>
+                <li>If distance > 500 meters from the campus center, it is immediately rejected.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header trigger">🎯 Apex Institute Demo Trigger</div>
+            <div class="card-body">
+              <strong>Claimed Photo:</strong> AICTE Approved Physics Laboratory.<br><br>
+              <strong>EXIF GPS Extracted:</strong> <code>Lat: 28.6139, Long: 77.2090</code><br>
+              <strong>Registered Campus GPS:</strong> <code>Lat: 28.4595, Long: 77.0266</code><br><br>
+              <strong>Calculated Distance:</strong> <strong>14.8 Kilometers</strong> away from campus bounds!<br>
+              <strong>Verdict:</strong> <code>OFF_CAMPUS_GEO_VIOLATION</code>.
+            </div>
+            <div class="trigger-box">
+              ⏱️ <strong>Execution Latency:</strong> 15ms instantaneous computation.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: Model 5 — Tesseract OCR & Regulatory Regex -->
+    <section class="slide" data-slide="7">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Engine 5 / 8</span>
+          <span class="nickname-badge">👓 The Smart Clause Reader</span>
+        </div>
+        <h1 class="slide-title">Tesseract OCR & Regulatory Regex Parser</h1>
+        <p class="slide-subtitle">Pinpointing sanction capacity gaps, land survey mismatches, and clause violations</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header problem">⚠️ The Fraud Trick</div>
+            <div class="card-body">
+              Colleges fill out the AICTE web form claiming an approved intake of <strong>180 students</strong>. But deep inside the 12-page scanned affiliation order issued by the State Technical University, Page 4 quietly states: <em>"Sanctioned intake: 120 seats only"</em>. Fatigued human evaluators rarely catch this disparity.
+            </div>
+            <div class="card-header tech" style="margin-top: 12px;">⚙️ How the Engine Catches It</div>
+            <div class="card-body">
+              A precision document ingestion engine:
+              <ul style="margin-left: 20px; margin-top: 6px;">
+                <li><strong>Image Preprocessing:</strong> Grayscale conversion &rarr; Gaussian blur &rarr; Otsu's adaptive binarization to remove old paper yellowing and watermarks.</li>
+                <li><strong>Tesseract OCR:</strong> Runs page-by-page OCR extraction.</li>
+                <li><strong>Deterministic Regex Patterns:</strong> Extracts legal and regulatory numbers:
+                  <div style="font-family: monospace; font-size: 0.8rem; background: #000; padding: 6px; border-radius: 6px; margin: 4px 0;">
+                    (?:Sanctioned|Approved)\s*Intake\s*[:\-]?\s*(\d{2,4})
+                  </div>
+                </li>
+                <li>Cross-references extracted number directly with the form claim field.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header trigger">🎯 Apex Institute Demo Trigger</div>
+            <div class="card-body">
+              <strong>Form Claim:</strong> Approved Intake = <strong>180 seats</strong>.<br><br>
+              <strong>Document OCR Extracted:</strong> University Affiliation Order Clause 4(b) = <strong>120 seats</strong>.<br><br>
+              <strong>Verdict:</strong> <code>MISMATCH_DETECTED</code><br>
+              System flags the exact page, sentence, and generates an audit log entry for committee review.
+            </div>
+            <div class="trigger-box">
+              ⏱️ <strong>Execution Latency:</strong> 800ms per scanned page on CPU.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Model 6 — RapidFuzz Ghost Faculty Reconciler -->
+    <section class="slide" data-slide="8">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Engine 6 / 8</span>
+          <span class="nickname-badge">👻 Moonlighting & Ghost Faculty Radar</span>
+        </div>
+        <h1 class="slide-title">RapidFuzz Ghost Faculty Reconciler</h1>
+        <p class="slide-subtitle">Stopping dual-salary ghost professors while guaranteeing 100% Zero-PII privacy</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header problem">⚠️ The Fraud Trick</div>
+            <div class="card-body">
+              To meet AICTE's mandatory Student-to-Faculty Ratio (SFR: 1:15 or 1:20), colleges hire "Ghost Faculty" on paper. Qualified PhD holders appear simultaneously on the payroll of 2 or 3 private colleges in different districts.
+            </div>
+            <div class="card-header tech" style="margin-top: 12px;">⚙️ How the Engine Catches It</div>
+            <div class="card-body">
+              Cross-college reconciliation without violating India's <strong>DPDP Act 2023</strong>:
+              <ul style="margin-left: 20px; margin-top: 6px;">
+                <li><strong>Zero-PII Storage:</strong> Real Aadhaar, PAN, and phone numbers are never stored in plain text. We generate a <code>HMAC-SHA256(identity, gov_secret)</code> irreversible hash.</li>
+                <li><strong>Fuzzy Name Reconciliation:</strong> If a college writes <em>"Dr. R. K. Sharma"</em> and another writes <em>"Dr. Ramesh Kumar Sharma"</em>, <strong>RapidFuzz Token Sort Ratio</strong> measures name alignment across identical hashed credentials.</li>
+                <li>A match threshold &ge; 90% flags simultaneous active payroll status.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header trigger">🎯 Apex Institute Demo Trigger</div>
+            <div class="card-body">
+              <strong>Faculty Member:</strong> Dr. Arvind Swaminathan (Professor & HOD, Computer Science).<br><br>
+              <strong>State-wide Cross-Match:</strong> Identity HMAC matches an active full-time faculty entry at <em>"Shri Balaji College of Engineering"</em>.<br><br>
+              <strong>Verdict:</strong> <code>DUAL_EMPLOYMENT_DETECTED</code> — Instantly cuts SFR ratio below compliant AICTE norms!
+            </div>
+            <div class="trigger-box">
+              ⏱️ <strong>Execution Latency:</strong> 95ms against state-wide hashed index.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Model 7 — Dynamic Validity-at-Decision-Date -->
+    <section class="slide" data-slide="9">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Engine 7 / 8</span>
+          <span class="nickname-badge">🗓️ The Scrutiny Calendar</span>
+        </div>
+        <h1 class="slide-title">Dynamic Validity-at-Decision-Date Engine</h1>
+        <p class="slide-subtitle">Certificates valid on upload day must remain valid on Scrutiny Decision Day</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header problem">⚠️ The Fraud Trick</div>
+            <div class="card-body">
+              A college submits its Fire NOC or Building Safety Certificate on January 10th. At that moment, the certificate is valid. But the AICTE Scrutiny Committee convenes on May 15th. In between, on March 31st, the NOC expired! Existing portals check validity only at the time of upload, allowing expired licenses to be approved.
+            </div>
+            <div class="card-header tech" style="margin-top: 12px;">⚙️ How the Engine Catches It</div>
+            <div class="card-body">
+              OneCheck decouples upload time from decision time:
+              <ul style="margin-left: 20px; margin-top: 6px;">
+                <li>The evaluator moves a dynamic <strong>"Scrutiny Date Anchor"</strong>.</li>
+                <li>The engine computes:
+                  <div style="font-family: monospace; font-size: 0.85rem; background: #000; padding: 6px; border-radius: 6px; margin: 4px 0;">
+                    status = f(certificate_expiry, scrutiny_anchor_date)
+                  </div>
+                </li>
+                <li>If expiry &lt; scrutiny date &rarr; status flips dynamically to <code>EXPIRED</code>.</li>
+                <li>If expiry &lt; scrutiny date + 30 days &rarr; warning: <code>RENEWAL_URGENT</code>.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header trigger">🎯 Apex Institute Demo Trigger</div>
+            <div class="card-body">
+              <strong>Document:</strong> Municipal Fire Safety Certificate.<br>
+              <strong>Upload Date:</strong> 15 Jan 2025 (Valid).<br>
+              <strong>Certificate Expiry:</strong> 31 March 2025.<br>
+              <strong>Scrutiny Committee Date:</strong> 15 May 2025.<br><br>
+              <strong>System Action:</strong> Moving the slider on Slide 8 immediately flips the badge from green <span class="highlight-pill" style="color:#10b981;">VERIFIED</span> to blinking red <span class="highlight-pill" style="color:#ef4444;">EXPIRED</span>!
+            </div>
+            <div class="trigger-box">
+              ⏱️ <strong>Execution Latency:</strong> 5ms instantaneous date calculation.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: Model 8 — Multimodal Gemini Vision -->
+    <section class="slide" data-slide="10">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Engine 8 / 8</span>
+          <span class="nickname-badge">📐 The Blueprint Architect</span>
+        </div>
+        <h1 class="slide-title">Multimodal Gemini Vision API</h1>
+        <p class="slide-subtitle">AI-powered architectural floor plan & carpet area extraction where OCR fails</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header problem">⚠️ The Fraud Trick</div>
+            <div class="card-body">
+              Architectural blueprints (naksha) contain vector lines, room walls, and symbols. Traditional OCR engines fail completely or output jumbled garbage characters. Colleges take advantage of this to falsely claim 640 sq.m of computer lab area when the architect's blueprint actually shows only 410 sq.m.
+            </div>
+            <div class="card-header tech" style="margin-top: 12px;">⚙️ How the Engine Catches It</div>
+            <div class="card-body">
+              Our backend selectively routes architectural blueprint pages to <strong>Google Gemini 1.5 Flash API</strong>:
+              <ul style="margin-left: 20px; margin-top: 6px;">
+                <li>Gemini analyzes the spatial diagram, room labels, and measurement tables.</li>
+                <li>Extracts structured JSON: room numbers, room tags, and exact square-meter areas.</li>
+                <li>System compares extracted blueprint measurements against AICTE norms and form claims.</li>
+                <li>Deterministic matching flags discrepancies without human measurement error.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header trigger">🎯 Apex Institute Demo Trigger</div>
+            <div class="card-body">
+              <strong>College Portal Claim:</strong> Computer Center Area = <strong>640 Sq. Meters</strong>.<br><br>
+              <strong>Gemini Vision Extraction:</strong> Blueprint Room 104 labeled <em>"Central Computer Center"</em> measures <strong>410 Sq. Meters</strong>.<br><br>
+              <strong>Discrepancy:</strong> Shortfall of 230 sq.m (-36% below AICTE mandate)!<br>
+              <strong>Verdict:</strong> <code>INFRASTRUCTURE_SHORTFALL_DETECTED</code>.
+            </div>
+            <div class="trigger-box">
+              ⏱️ <strong>Execution Latency:</strong> 1.8s (selective cloud foundation call).
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: The Triangle of Truth & Apex Institute Walkthrough -->
+    <section class="slide" data-slide="11">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">System Integration</span>
+          <span class="nickname-badge">🔺 The Triangle of Truth</span>
+        </div>
+        <h1 class="slide-title">Apex Institute Demo: 5 Faults in 1.4 Seconds</h1>
+        <p class="slide-subtitle">How the 8 engines coordinate into an unbreachable truth verification engine</p>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-header problem">1. Form Claim</div>
+            <div class="card-body">
+              What the college wrote in the online application form (e.g. 180 seats, 640 sq.m lab, valid NOCs, 40 faculty members).
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header solution">2. Document Forensic Proof</div>
+            <div class="card-body">
+              What our 8 ML engines actually discover inside the uploaded PDFs, photos, blueprints, and EXIF coordinates.
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header trigger">3. AICTE Portal History</div>
+            <div class="card-body">
+              Historical state data, past geo-coordinates, sister institute photos, and hashed faculty payrolls.
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 8px;">
+          <div class="card-header" style="color: #10b981;">📋 Apex Institute of Technology (APEX-101) Results Card</div>
+          <div class="card-body" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; font-size: 0.85rem;">
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; padding: 10px; border-radius: 8px;">
+              <strong>Fault 1: Land Title</strong><br>
+              Signature ELA Tamper score 0.42<br>
+              <span style="color: #ef4444; font-weight: 700;">TAMPER FLAGGED</span>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; padding: 10px; border-radius: 8px;">
+              <strong>Fault 2: Lab Photo</strong><br>
+              pHash match with APEX-004<br>
+              <span style="color: #ef4444; font-weight: 700;">RECYCLED PHOTO</span>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; padding: 10px; border-radius: 8px;">
+              <strong>Fault 3: Physics Lab</strong><br>
+              EXIF 14.8 km outside fence<br>
+              <span style="color: #ef4444; font-weight: 700;">GEO VIOLATION</span>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; padding: 10px; border-radius: 8px;">
+              <strong>Fault 4: Fire NOC</strong><br>
+              Expired on 15 May Scrutiny<br>
+              <span style="color: #ef4444; font-weight: 700;">STATUS: EXPIRED</span>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; padding: 10px; border-radius: 8px;">
+              <strong>Fault 5: Blueprint</strong><br>
+              410 sq.m vs 640 sq.m claim<br>
+              <span style="color: #ef4444; font-weight: 700;">MISMATCH DETECTED</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: Why We Stand Out & Wrap Up -->
+    <section class="slide" data-slide="12">
+      <div class="slide-inner">
+        <div class="slide-badge-row">
+          <span class="model-number">Why OneCheck Wins</span>
+          <span class="nickname-badge">🏆 Real Enterprise Impact</span>
+        </div>
+        <h1 class="slide-title">Why Our AI Forensics Approach Stands Out</h1>
+        <p class="slide-subtitle">Built for real-world government deployment, not just a hackathon prototype</p>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-header solution">🚀 Ultra High-Throughput</div>
+            <div class="card-body">
+              Processes an entire college portfolio in under <strong>2 seconds</strong> on standard CPU servers. Total RAM footprint remains under <strong>350MB</strong>. No expensive GPU clusters required.
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header tech">🔒 DPDP Act 2023 Compliant</div>
+            <div class="card-body">
+              Zero plain-text PII storage. All national IDs and faculty credentials use irreversible <strong>Keyed HMAC-SHA256</strong> hashing, ensuring complete legal and privacy compliance.
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header trigger">⚖️ Honest AI Architecture</div>
+            <div class="card-body">
+              Never hallucinates or fakes 100% verification. If an external municipal portal is unreachable, our system returns <code>SOURCE_UNAVAILABLE</code> and safely routes to <code>MANUAL_REVIEW_REQUIRED</code>.
+            </div>
+          </div>
+        </div>
+
+        <div class="trigger-box" style="font-size: 1.1rem; text-align: center; border-left: none; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #a7f3d0;">
+          <strong>One Check. Full Trust.</strong> Autonomous Regulatory Integrity for Higher Education in India.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Speaker Notes Drawer -->
+  <div class="speaker-notes-drawer" id="speakerNotesDrawer">
+    <div class="notes-title">
+      <span>🎙️ SPEAKER NOTES (What to say to Judges in Hinglish)</span>
+    </div>
+    <div class="notes-content" id="notesContent">
+      Loading talking points...
+    </div>
+  </div>
+
+  <!-- Overview Modal -->
+  <div class="overview-modal" id="overviewModal" onclick="closeOverview(event)">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+      <h2 style="font-size: 1.5rem; font-weight: 700;">Jump to Slide</h2>
+      <button class="btn" onclick="toggleOverview()">✕ Close</button>
+    </div>
+    <div class="overview-grid" id="overviewGrid">
+      <!-- Generated via JS -->
+    </div>
+  </div>
+
+  <!-- Footer Navigation -->
+  <footer>
+    <div class="shortcut-hints">
+      <span>Navigate: <kbd>&larr;</kbd> <kbd>&rarr;</kbd> or <kbd>Space</kbd></span>
+      <span>Notes: <kbd>S</kbd></span>
+      <span>Overview: <kbd>O</kbd></span>
+      <span>Fullscreen: <kbd>F</kbd></span>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <button class="btn" onclick="prevSlide()">‹ Previous</button>
+      <button class="btn" style="background: var(--primary); border-color: var(--primary); color: white;" onclick="nextSlide()">Next ›</button>
+    </div>
+  </footer>
+
+  <script>
+    const speakerNotes = {
+      1: "Judges ko batayein ki AICTE mein har saal 10,000 se zyada colleges 5 lakh se zyada documents upload karte hain. Agar hum sab par heavy LLM chalayenge toh government ka crores ka cloud bill aayega. Isliye OneCheck ne hybrid approach banayi hai: 90% checks ultra-fast CPU forensic engines par chalte hain, aur selective multimodal AI blueprints ke liye use hota hai.",
+      2: "Ye hamara master cheatsheet hai jisme 8 engines ke simple names hain: The File Time Machine, Digital X-Ray, Carbon-Copy Catcher, Satellite Pin Tracker, The Smart Clause Reader, Ghost Faculty Radar, The Scrutiny Calendar, aur The Blueprint Architect.",
+      3: "Model 1: 'The File Time Machine'. PDF binary stream scan karta hai. Jab koi college Photoshop ya Canva mein saal ya capacity badal kar save karta hai, ye uske /ModDate aur revisions pakad leta hai. Apex Institute ki Fire NOC mein Photoshop CC 2023 ka revision pakda gaya.",
+      4: "Model 2: 'Digital X-Ray / Stamp Scanner'. Error Level Analysis (ELA) use karta hai. Agar kisi purane document se signature ya Tehsildar ka stamp crop karke naye page par paste kiya ho, toh ELA heatmap par wo neon glow ki tarah chamak jata hai. Apex Institute ka Land Title signature 0.42 score par flag hua.",
+      5: "Model 3: 'The Carbon-Copy Catcher'. Ek trust apne do colleges ke liye ek hi computer lab ki photo use karta hai (recycled infrastructure). pHash human perception ki tarah 64-bit DCT fingerprint banata hai. Agar photo crop ya compress bhi ho, Hamming distance <= 4 aate hi duplicate pakad leta hai.",
+      6: "Model 4: 'Satellite Pin Tracker'. EXIF GPS tags nikal kar Haversine formula se campus ke registered coordinates se compare karta hai. Agar photo campus se 500 meter se door khinchee gayi hai toh flag. Apex Institute ki Physics lab campus se 14.8 km door thi!",
+      7: "Model 5: 'The Smart Clause Reader'. Scanned approval order se sanctioned capacity nikalta hai. Form mein college ne 180 seats claim kiya, lekin order ke andar page 4 par 120 seats likha tha. Deterministic regex ne instant mismatch pakad liya.",
+      8: "Model 6: 'Moonlighting & Ghost Faculty Radar'. DPDP Act compliant hai - Aadhaar/PAN plain text mein store nahi hota balki HMAC hash banta hai. RapidFuzz se agar naam me spelling thodi alag bhi ho toh match ho jata hai. Ek professor do colleges mein payroll par pakda gaya.",
+      9: "Model 7: 'The Scrutiny Calendar'. Upload date par certificate valid tha, lekin Scrutiny committee meeting ke din expire ho chuka tha. Ye dynamic anchor date calculation karta hai. Slide karte hi status green se red (EXPIRED) ban jata hai.",
+      10: "Model 8: 'The Blueprint Architect'. Naksha (floor plan) complex hota hai jahan normal OCR crash ho jata hai. Yahan selective Gemini 1.5 Flash multimodal vision use hota hai jo blueprint se 410 sq.m lab nikalta hai jabki form me 640 sq.m claim tha.",
+      11: "Triangle of Truth: Form Claim + Document OCR Proof + AICTE Portal History. Apex Institute ke 5 planted demo faults 1.4 seconds ke andar CPU par live pakad kar dikhaye hain.",
+      12: "Winning Punch: Sub-2 second latency, <350MB RAM footprint, zero GPU cost, DPDP Act 2023 compliance, aur transparent status ledger jo system ko 100% auditable aur reliable banata hai."
+    };
+
+    let currentSlide = 1;
+    const totalSlides = 12;
+
+    function updateSlide() {
+      document.querySelectorAll('.slide').forEach((slide, idx) => {
+        if (idx + 1 === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      document.getElementById('slideCounter').innerText = `Slide ${currentSlide} of ${totalSlides}`;
+      const pct = (currentSlide / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = `${pct}%`;
+
+      document.getElementById('notesContent').innerText = speakerNotes[currentSlide] || "No notes for this slide.";
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(n) {
+      if (n >= 1 && n <= totalSlides) {
+        currentSlide = n;
+        updateSlide();
+        closeOverview();
+      }
+    }
+
+    function toggleNotes() {
+      const drawer = document.getElementById('speakerNotesDrawer');
+      const btn = document.getElementById('btnNotes');
+      drawer.classList.toggle('open');
+      btn.classList.toggle('active');
+    }
+
+    function toggleOverview() {
+      const modal = document.getElementById('overviewModal');
+      const btn = document.getElementById('btnOverview');
+      const isOpen = modal.classList.toggle('open');
+      btn.classList.toggle('active', isOpen);
+      if (isOpen) renderOverview();
+    }
+
+    function closeOverview(e) {
+      if (!e || e.target.id === 'overviewModal') {
+        document.getElementById('overviewModal').classList.remove('open');
+        document.getElementById('btnOverview').classList.remove('active');
+      }
+    }
+
+    function renderOverview() {
+      const grid = document.getElementById('overviewGrid');
+      grid.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const card = document.createElement('div');
+        card.className = `overview-card ${i === currentSlide ? 'current' : ''}`;
+        card.onclick = () => goToSlide(i);
+        
+        let title = `Slide ${i}`;
+        const slideEl = document.querySelector(`.slide[data-slide="${i}"] .slide-title`);
+        if (slideEl) title = slideEl.innerText;
+
+        card.innerHTML = `
+          <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 700;">Slide ${i} of ${totalSlides}</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #fff;">${title}</div>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => alert(err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Keyboard listener
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        toggleNotes();
+      } else if (e.key === 'o' || e.key === 'O') {
+        e.preventDefault();
+        toggleOverview();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToSlide(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToSlide(totalSlides);
+      }
+    });
+
+    // Initialize
+    updateSlide();
+  </script>
+</body>
+</html>
