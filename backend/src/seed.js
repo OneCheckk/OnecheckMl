@@ -8,7 +8,13 @@ const {
   Rulepack,
   Checklist,
   AicteRecord,
-  IssuerRegistry
+  IssuerRegistry,
+  Document,
+  InfraPhoto,
+  Finding,
+  Alert,
+  RiskScore,
+  Claim
 } = require('./models');
 const logger = require('./config/logger');
 
@@ -446,7 +452,7 @@ async function seedDatabase(uri) {
     }
     logger.info('Created seed IssuerRegistry entries (MATCH, MISMATCH, TIMEOUT)');
 
-    // 7. Seed Primary Demo Application (Apex Institute)
+    // 7. Seed Primary Demo Application (Apex Institute) with 5 Planted Demo Faults
     let app = await Application.findOne({ applicationNumber: 'APP-2026-000101' });
     if (!app) {
       app = await Application.create({
@@ -458,8 +464,8 @@ async function seedDatabase(uri) {
         academicYear: '2026-2027',
         status: 'SUBMITTED',
         synthetic: true,
-        submittedAt: new Date(),
-        decisionDate: new Date('2026-06-30T00:00:00Z'),
+        submittedAt: new Date('2026-01-15T10:00:00Z'),
+        decisionDate: new Date('2026-05-15T00:00:00Z'),
         approvalPeriod: { start: '2026-07-01', end: '2027-06-30' },
         checklistVersion: '2026.1',
         rulepackVersion: '2026.1-demo',
@@ -468,18 +474,356 @@ async function seedDatabase(uri) {
         summary: {
           band: 'RED',
           maxSeverity: 'HIGH',
-          openFindings: 4,
+          openFindings: 5,
           needsConfirmation: 0,
           pendingSources: 0,
-          sortKey: '04-04-20260630'
+          sortKey: '05-04-20260515'
         },
-        riskScore: 82,
-        riskLevel: 'GREEN',
-        totalDocuments: 4,
-        flaggedDocuments: 0
+        riskScore: 42,
+        riskLevel: 'RED',
+        totalDocuments: 6,
+        flaggedDocuments: 3,
+        lastValidity: [
+          {
+            docId: 'doc_fire_noc_apex_101',
+            documentName: 'Fire Safety Certificate NOC',
+            documentType: 'FIRE_NOC',
+            validFrom: '2024-01-15',
+            validUntil: '2026-05-01',
+            status: 'EXPIRED',
+            verdict: 'EXPIRED',
+            scrutinyDate: '2026-05-15',
+            isValidOnScrutiny: false,
+            approvalPeriod: { start: '2026-07-01', end: '2027-06-30' }
+          },
+          {
+            docId: 'doc_nba_cert_apex_101',
+            documentName: 'NBA Accreditation Certificate',
+            documentType: 'ACCREDITATION_CERT',
+            validFrom: '2023-07-01',
+            validUntil: '2027-06-30',
+            status: 'VERIFIED',
+            verdict: 'VERIFIED',
+            scrutinyDate: '2026-05-15',
+            isValidOnScrutiny: true,
+            approvalPeriod: { start: '2026-07-01', end: '2027-06-30' }
+          }
+        ]
       });
       logger.info('Created seed Application: APP-2026-000101');
+    } else {
+      app.riskScore = 42;
+      app.riskLevel = 'RED';
+      app.summary = {
+        band: 'RED',
+        maxSeverity: 'HIGH',
+        openFindings: 5,
+        needsConfirmation: 0,
+        pendingSources: 0,
+        sortKey: '05-04-20260515'
+      };
+      app.totalDocuments = 6;
+      app.decisionDate = new Date('2026-05-15T00:00:00Z');
+      app.lastValidity = [
+        {
+          docId: 'doc_fire_noc_apex_101',
+          documentName: 'Fire Safety Certificate NOC',
+          documentType: 'FIRE_NOC',
+          validFrom: '2024-01-15',
+          validUntil: '2026-05-01',
+          status: 'EXPIRED',
+          verdict: 'EXPIRED',
+          scrutinyDate: '2026-05-15',
+          isValidOnScrutiny: false,
+          approvalPeriod: { start: '2026-07-01', end: '2027-06-30' }
+        },
+        {
+          docId: 'doc_nba_cert_apex_101',
+          documentName: 'NBA Accreditation Certificate',
+          documentType: 'ACCREDITATION_CERT',
+          validFrom: '2023-07-01',
+          validUntil: '2027-06-30',
+          status: 'VERIFIED',
+          verdict: 'VERIFIED',
+          scrutinyDate: '2026-05-15',
+          isValidOnScrutiny: true,
+          approvalPeriod: { start: '2026-07-01', end: '2027-06-30' }
+        }
+      ];
+      await app.save();
     }
+
+    // 8. Seed 6 Compliance Documents for Apex Institute (with Fault 1, 4, 5 evidence)
+    const docsToSeed = [
+      {
+        storageKey: 'doc_land_title_apex_101',
+        documentType: 'LAND_TITLE',
+        docType: 'LAND_TITLE',
+        originalName: 'Land_Title_Deed_Registry.pdf',
+        mimeType: 'application/pdf',
+        fileSize: 1048576,
+        sha256FileHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+        verificationStatus: 'MISMATCH_DETECTED',
+        analysis: {
+          status: 'DONE',
+          warnings: ['Sub-Registrar signature ELA tamper score > 0.40'],
+          forensics: [
+            {
+              signal: 'TAMPER_SUSPECTED',
+              score: 0.88,
+              suspected: true,
+              region: { x: 120, y: 340, width: 200, height: 50, anomalyScore: 0.88 }
+            }
+          ]
+        }
+      },
+      {
+        storageKey: 'doc_building_plan_apex_101',
+        documentType: 'BUILDING_PLAN',
+        docType: 'BUILDING_PLAN',
+        originalName: 'Architect_CAD_Building_Plan.pdf',
+        mimeType: 'application/pdf',
+        fileSize: 2048576,
+        sha256FileHash: 'c4ca4238a0b923820dcc509a6f75849b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f',
+        verificationStatus: 'MISMATCH_DETECTED',
+        extractedFields: { carpetAreaSqm: 410, labAreaSqm: 410 },
+        analysis: {
+          status: 'DONE',
+          warnings: ['Area deficit of 230 sq.m detected against 640 sq.m claim'],
+          forensics: []
+        }
+      },
+      {
+        storageKey: 'doc_faculty_list_apex_101',
+        documentType: 'FACULTY_LIST',
+        docType: 'FACULTY_LIST',
+        originalName: 'Approved_Faculty_Roster.pdf',
+        mimeType: 'application/pdf',
+        fileSize: 512000,
+        sha256FileHash: 'c81e728d9d4c2f636f067f89cc14862c1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d',
+        verificationStatus: 'MISMATCH_DETECTED',
+        extractedFields: { totalFaculty: 6, intakeSupported: 120 }
+      },
+      {
+        storageKey: 'doc_fire_noc_apex_101',
+        documentType: 'FIRE_NOC',
+        docType: 'FIRE_NOC',
+        originalName: 'Fire_Safety_NOC_Certificate.pdf',
+        mimeType: 'application/pdf',
+        fileSize: 614000,
+        sha256FileHash: 'eccbc87e4b5ce2fe28308fd9f2a7baf31b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e',
+        verificationStatus: 'EXPIRED',
+        expiryDate: new Date('2026-05-01'),
+        isExpired: true,
+        extractedFields: { validUntil: '2026-05-01', authority: 'Chief Fire Officer Noida' }
+      },
+      {
+        storageKey: 'doc_ter_receipt_apex_101',
+        documentType: 'TER_PAYMENT_RECEIPT',
+        docType: 'TER_PAYMENT_RECEIPT',
+        originalName: 'TER_Processing_Fee_Receipt.pdf',
+        mimeType: 'application/pdf',
+        fileSize: 312000,
+        sha256FileHash: 'a87ff679a2f3e71d9181a67b7542122c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a',
+        verificationStatus: 'MISMATCH_DETECTED',
+        extractedFields: { paymentStatus: 'PAID', amount: 150000 }
+      },
+      {
+        storageKey: 'doc_nba_cert_apex_101',
+        documentType: 'ACCREDITATION_CERT',
+        docType: 'ACCREDITATION_CERT',
+        originalName: 'NBA_Accreditation_Certificate.pdf',
+        mimeType: 'application/pdf',
+        fileSize: 450000,
+        sha256FileHash: 'e4da3b7fbbce2345d7772b0674a318d51a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d',
+        verificationStatus: 'VERIFIED',
+        expiryDate: new Date('2027-06-30'),
+        isExpired: false
+      }
+    ];
+
+    for (const d of docsToSeed) {
+      await Document.findOneAndUpdate(
+        { storageKey: d.storageKey },
+        { ...d, application: app._id, applicationId: app._id, uploadedBy: institutionUser._id, uploadStatus: 'STORED' },
+        { upsert: true, new: true }
+      );
+    }
+    logger.info('Seeded 6 Compliance Documents for Apex Institute');
+
+    // 9. Seed 2 Infra Photos (Fault 2: CAD/CAM Lab pHash, Fault 3: Physics Lab 14.8km Geo Violation)
+    await InfraPhoto.findOneAndUpdate(
+      { storageKey: 'photo_cad_cam_lab_apex_101' },
+      {
+        application: app._id,
+        applicationId: app._id,
+        photoType: 'BUILDING_LAB',
+        storageKey: 'photo_cad_cam_lab_apex_101',
+        mimeType: 'image/jpeg',
+        fileSize: 500000,
+        sha256FileHash: 'hash_cad_cam_001',
+        imageHash: 'a1b2c3d4e5f60011',
+        geofenceStatus: 'WITHIN_CAMPUS',
+        distanceFromCampus: 45,
+        uploadedBy: institutionUser._id
+      },
+      { upsert: true, new: true }
+    );
+
+    await InfraPhoto.findOneAndUpdate(
+      { storageKey: 'photo_physics_lab_apex_101' },
+      {
+        application: app._id,
+        applicationId: app._id,
+        photoType: 'BUILDING_LAB',
+        storageKey: 'photo_physics_lab_apex_101',
+        mimeType: 'image/jpeg',
+        fileSize: 520000,
+        sha256FileHash: 'hash_physics_lab_002',
+        imageHash: 'f9e8d7c6b5a40099',
+        geofenceStatus: 'BEYOND_CAMPUS',
+        distanceFromCampus: 14800,
+        gpsCoordinates: { latitude: 28.512, longitude: 77.214 },
+        uploadedBy: institutionUser._id
+      },
+      { upsert: true, new: true }
+    );
+    logger.info('Seeded 2 Infrastructure Photos with planted pHash & 14.8km Geofence breaches');
+
+    // 10. Seed the Exact 5 Planted Findings
+    const findingsToSeed = [
+      {
+        findingId: 'FINDING-APEX-01',
+        ruleId: 'DOC-TAMPER-005',
+        clauseRef: 'AICTE-APH-CH2-02',
+        title: 'Digital document tampering suspected in Land Title Deed',
+        severity: 'HIGH',
+        status: 'MISMATCH_DETECTED',
+        message: 'Sub-Registrar signature Error Level Analysis (ELA) score is 0.88 (> 0.40 threshold), indicating localized digital tampering in seal and signature regions.',
+        proof: { statement: 'Sub-Registrar signature ELA tamper score > 0.40 -> TAMPER_SUSPECTED' }
+      },
+      {
+        findingId: 'FINDING-APEX-02',
+        ruleId: 'PHOTO-RECYCLE-006',
+        clauseRef: 'AICTE-APH-CH2-15',
+        title: 'CAD/CAM Computer lab photo matches sister campus APEX-004',
+        severity: 'HIGH',
+        status: 'MISMATCH_DETECTED',
+        message: 'CAD/CAM Computer lab photograph perceptual hash matches sister campus APEX-004 (Hamming distance 2 <= 4, recycled infrastructure fraud).',
+        proof: { statement: 'pHash Hamming distance <= 4 -> RECYCLED_INFRASTRUCTURE_FRAUD' }
+      },
+      {
+        findingId: 'FINDING-APEX-03',
+        ruleId: 'PHOTO-GEO-007',
+        clauseRef: 'AICTE-APH-CH2-16',
+        title: 'Physics Lab photograph taken 14.8 km away from campus',
+        severity: 'HIGH',
+        status: 'MISMATCH_DETECTED',
+        message: 'EXIF GPS coordinates place Physics Lab photo 14.8 km away from registered campus site (breaching 500m regulatory fence).',
+        proof: { statement: 'EXIF GPS coordinates are 14.8 km away -> OFF_CAMPUS_GEO_VIOLATION' }
+      },
+      {
+        findingId: 'FINDING-APEX-04',
+        ruleId: 'NOC-VALIDITY-008',
+        clauseRef: 'AICTE-APH-CH2-04',
+        title: 'Fire Safety NOC expired on Scrutiny Date (May 15)',
+        severity: 'HIGH',
+        status: 'EXPIRED',
+        message: 'Fire Safety NOC (NOC-UP-2024-9988) was valid on submission date (Jan 15), but expired on the Scrutiny Decision Date (May 15).',
+        proof: { statement: 'Valid at submission, expired on Scrutiny Date -> EXPIRED' }
+      },
+      {
+        findingId: 'FINDING-APEX-05',
+        ruleId: 'AREA-CONSIST-001',
+        clauseRef: 'AICTE-APH-CH2-05',
+        title: 'Architect CAD blueprint carpet area 410 sq.m vs 640 sq.m claim',
+        severity: 'HIGH',
+        status: 'MISMATCH_DETECTED',
+        message: 'Architect CAD blueprint extracts 410 sq.m carpet area versus 640 sq.m portal form claim (230 sq.m deficit, 35.9% discrepancy).',
+        proof: { statement: 'Architect CAD blueprint extracts 410 sq.m vs 640 sq.m claim -> MISMATCH_DETECTED' }
+      }
+    ];
+
+    for (const f of findingsToSeed) {
+      await Finding.findOneAndUpdate(
+        { findingId: f.findingId },
+        { ...f, applicationId: app._id, application: app._id, state: 'OPEN' },
+        { upsert: true, new: true }
+      );
+    }
+    logger.info('Seeded 5 Planted Findings for Apex Institute');
+
+    // 11. Seed Alerts
+    const alertsToSeed = [
+      {
+        type: 'TAMPER_SUSPECTED',
+        severity: 'CRITICAL',
+        title: 'Digital document tampering suspected',
+        message: 'Sub-Registrar signature ELA tamper score is 0.88 (> 0.40 threshold).'
+      },
+      {
+        type: 'RECYCLED_INFRASTRUCTURE_FRAUD',
+        severity: 'CRITICAL',
+        title: 'CAD/CAM Lab photo matches sister campus APEX-004',
+        message: 'Perceptual hash collision detected with sister institution APEX-004.'
+      },
+      {
+        type: 'OFF_CAMPUS_GEO_VIOLATION',
+        severity: 'HIGH',
+        title: 'Physics Lab GPS coordinates 14.8 km away from campus',
+        message: 'Campus perimeter breached: photo taken 14,800m from coordinates.'
+      },
+      {
+        type: 'EXPIRED',
+        severity: 'HIGH',
+        title: 'Fire Safety NOC expired prior to scrutiny date',
+        message: 'Fire Safety certificate lapsed on May 1st, 2026.'
+      },
+      {
+        type: 'MISMATCH_DETECTED',
+        severity: 'HIGH',
+        title: 'Blueprint carpet area deficit: 410 sq.m vs 640 sq.m claim',
+        message: 'Architect blueprint extracted 410 sq.m versus 640 sq.m claimed.'
+      }
+    ];
+
+    for (const a of alertsToSeed) {
+      await Alert.create({
+        ...a,
+        application: app._id,
+        applicationId: app._id,
+        status: 'OPEN'
+      });
+    }
+    logger.info('Seeded 5 Planted Alerts for Apex Institute');
+
+    // 12. Seed RiskScore
+    await RiskScore.findOneAndUpdate(
+      { application: app._id },
+      {
+        application: app._id,
+        applicationId: app._id,
+        totalScore: 42,
+        riskLevel: 'RED',
+        rulesVersion: '2026.1-demo',
+        pillarScores: {
+          documentCompleteness: 60,
+          anomalyFlags: 30,
+          sourceVerification: 40,
+          historicalCompliance: 50,
+          infrastructureEvidence: 30
+        },
+        deductions: [
+          { ruleId: 'DOC-TAMPER-005', points: 25, explanation: 'Land title deed ELA tamper score > 0.40' },
+          { ruleId: 'PHOTO-RECYCLE-006', points: 20, explanation: 'CAD/CAM photo duplicate match' },
+          { ruleId: 'PHOTO-GEO-007', points: 20, explanation: 'Physics lab 14.8km geofence breach' },
+          { ruleId: 'NOC-VALIDITY-008', points: 15, explanation: 'Fire NOC expired before scrutiny date' },
+          { ruleId: 'AREA-CONSIST-001', points: 20, explanation: 'Blueprint 410 sq.m vs 640 sq.m claim deficit' }
+        ]
+      },
+      { upsert: true, new: true }
+    );
+    logger.info('Seeded RiskScore (42 - RED band) for Apex Institute');
 
     logger.info('Database seeding completed successfully.');
     return { admin, officer, regionalDirector, auditor, institutionUser, institution: inst1, app };

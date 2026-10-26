@@ -11,7 +11,8 @@ async function login(email, password, requestId = null) {
   const normalizedEmail = email.toLowerCase().trim();
   const EMAIL_ALIASES = {
     'officer.rao@aicte.gov.in': 'officer@onecheck.gov.in',
-    'institution@apex-tech.edu.in': 'institution@delhi-tech.edu',
+    'officer@aicte.gov.in': 'officer@onecheck.gov.in',
+    'institution@apex-tech.edu.in': 'director@apex-tech.edu.in',
     'admin@aicte.gov.in': 'admin@onecheck.gov.in',
     'auditor@cag.gov.in': 'auditor@onecheck.gov.in',
     'director@aicte.gov.in': 'director.regional@onecheck.gov.in'

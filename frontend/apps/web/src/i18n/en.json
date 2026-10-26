@@ -1,0 +1,108 @@
+{
+  "app": {
+    "title": "OneCheck",
+    "subtitle": "AICTE Application Validation & Regulatory Compliance Verification Platform",
+    "govtBanner": "Government of India • Ministry of Education • AICTE Regulatory Scrutiny",
+    "caseFooter": "Automated findings are advisory and are for review by authorized officials.",
+    "demoBanner": "Synthetic data and simulated sources. Not an official verification.",
+    "placeholderTag": "PLACEHOLDER norm, not yet checked against the handbook"
+  },
+  "status": {
+    "VERIFIED": "Verified",
+    "MISMATCH_DETECTED": "Mismatch detected",
+    "EXPIRED": "Expired",
+    "VERIFICATION_PENDING": "Verification pending",
+    "SOURCE_UNAVAILABLE": "Source unavailable",
+    "MANUAL_REVIEW_REQUIRED": "Manual review required",
+    "NOT_CHECKED": "Not checked",
+    "BLOCKED_LOW_CONFIDENCE": "Needs confirmation"
+  },
+  "band": {
+    "RED": "High priority",
+    "YELLOW": "Needs attention",
+    "GREEN": "Routine"
+  },
+  "severity": {
+    "INFO": "Informational",
+    "LOW": "Low Severity",
+    "MEDIUM": "Medium Severity",
+    "HIGH": "High Severity",
+    "CRITICAL": "Critical Severity"
+  },
+  "auth": {
+    "loginTitle": "Sign In to OneCheck",
+    "loginDescription": "Select your institutional or scrutiny officer credentials to access regulatory workflows.",
+    "emailLabel": "Official Email Address",
+    "passwordLabel": "Password",
+    "signInButton": "Sign In",
+    "demoAccounts": "Demo Quick-Fill Accounts",
+    "invalidCredentials": "The email or password entered is incorrect.",
+    "rateLimited": "Too many failed attempts. Please wait 60 seconds before trying again.",
+    "forbiddenTitle": "403 — Access Forbidden",
+    "forbiddenMessage": "Your authenticated role is not authorized to access this regulatory partition.",
+    "backToHome": "Return to Dashboard"
+  },
+  "portal": {
+    "title": "Institutional Applications",
+    "createApplication": "Create Application",
+    "newApplicationTitle": "New AICTE Approval Application",
+    "selectCategory": "Select Approval Category",
+    "missingItemsCount": "Missing Items",
+    "lastUpdated": "Last Updated",
+    "emptyState": "No active applications found. Initiate a new regulatory compliance filing.",
+    "tabs": {
+      "checklist": "Checklist & Uploads",
+      "extracted": "Extracted Data",
+      "selfCheck": "Self-Check",
+      "messages": "Deficiency Messages",
+      "history": "Audit History"
+    },
+    "selfCheck": {
+      "button": "Run Self-Check",
+      "running": "Evaluating norms...",
+      "noFindings": "All automated checks passed. No anomalies detected against handbook rules.",
+      "submitDisabledTooltip": "Cannot submit application: Required documents or compliance items are missing."
+    }
+  },
+  "review": {
+    "queueTitle": "Scrutiny Queue & Regulatory Dashboard",
+    "applicationNumber": "Application Number",
+    "institution": "Institution Name",
+    "riskBand": "Risk Band",
+    "openFindings": "Open Findings",
+    "pendingSources": "Pending Sources",
+    "needsConfirmation": "Needs Confirmation",
+    "age": "Submitted Age",
+    "casePacket": "Regulatory Case Packet",
+    "actions": {
+      "requestClarification": "Request Clarification",
+      "referInspection": "Refer for Inspection",
+      "recordOutcome": "Record Outcome"
+    },
+    "disposition": {
+      "accept": "Accept Finding",
+      "dismiss": "Dismiss Finding",
+      "dismissReasonRequired": "A justification of at least 10 characters is required to dismiss a finding."
+    }
+  },
+  "evidence": {
+    "viewerTitle": "Document Evidence Viewer",
+    "page": "Page",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "compare": "Compare Evidence",
+    "jumpToBox": "View cited evidence region"
+  },
+  "audit": {
+    "title": "Immutable Audit Log & Hash-Chain Verification",
+    "verifyChain": "Verify Hash Chain Integrity",
+    "chainIntact": "Chain intact ({count} events verified cryptographically)",
+    "chainBroken": "Chain broken at event #{seq}"
+  },
+  "benchmark": {
+    "title": "Synthetic Benchmark Runs",
+    "subtitle": "Deterministic evaluation against synthetic ground truth",
+    "runBenchmark": "Run Benchmark",
+    "downloadReport": "Download Report (JSON)"
+  }
+}

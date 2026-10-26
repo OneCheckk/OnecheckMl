@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Poppins:wght@500;600;700;800&display=swap');
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* ------------------------------------------------------------------
+   OneCheck design tokens
+   Modern AICTE portal typography & institutional aesthetic.
+   ------------------------------------------------------------------ */
+:root {
+  --brand-900: #0d2a4f;
+  --brand-800: #123a6a;
+  --brand-700: #174a85;
+  --brand-600: #1d5a9e;
+  --brand-50: #eef3f9;
+
+  --saffron: #e2701c;
+  --india-green: #13703b;
+
+  --canvas: #f2f4f7;
+  --surface: #ffffff;
+  --line: #d3dae3;
+  --line-soft: #e5e9ef;
+  --ink: #1b2533;
+  --ink-soft: #435064;
+  --ink-faint: #5f6b7e;
+
+  --ok: #17643a;
+  --bad: #a4231c;
+  --warn: #8a4b06;
+  --info: #1d4f8f;
+  --review: #563785;
+
+  /* Legacy variable names retained for compatibility */
+  --color-primary: var(--brand-900);
+  --color-accent: var(--brand-600);
+  --color-surface: var(--canvas);
+  --color-border: var(--line);
+  --color-text: var(--ink);
+  --color-text-muted: var(--ink-soft);
+  --status-verified: var(--ok);
+  --status-mismatch: var(--bad);
+  --status-expired: var(--bad);
+  --status-pending: var(--info);
+  --status-unavailable: #4a5568;
+  --status-manual: var(--review);
+  --status-not-checked: #4a5568;
+  --status-blocked: var(--warn);
+  --band-red: var(--bad);
+  --band-yellow: var(--warn);
+  --band-green: var(--ok);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background-color: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Accessible focus ring */
+:focus-visible {
+  outline: 2px solid var(--brand-600);
+  outline-offset: 2px;
+}
+
+/* Visually-hidden elements inside horizontally scrolling tables must not
+   extend the page width: anchor them instead of using their static position. */
+.sr-only {
+  left: 0;
+  top: 0;
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 100;
+  background: var(--brand-900);
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 3px;
+}
+.skip-link:focus {
+  top: 8px;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Selected evidence region outline (no glow, just a clear double border) */
+.evidence-selected {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--bad);
+}
+
+/* Legacy pulse class kept for compatibility; now a static emphasis */
+.animate-evidence-pulse {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--bad);
+}
+
+@layer components {
+  /* Page container */
+  .page {
+    @apply mx-auto w-full max-w-page px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Panels: bordered sections with a title bar, the workhorse of the UI */
+  .panel {
+    @apply bg-white border border-line rounded;
+  }
+  .panel-header {
+    @apply flex flex-wrap items-center justify-between gap-2 border-b border-line bg-[#f6f8fa] px-4 py-2.5;
+  }
+  .panel-title {
+    @apply text-sm font-semibold text-ink;
+  }
+  .panel-subtitle {
+    @apply text-meta text-ink-faint;
+  }
+  .panel-body {
+    @apply p-4;
+  }
+
+  /* Section headings used outside panels */
+  .section-title {
+    @apply text-2xl font-extrabold tracking-tight text-brand-900;
+  }
+
+  /* Links that look like links */
+  .link {
+    @apply text-brand-600 underline decoration-brand-200 underline-offset-2 hover:text-brand-800 hover:decoration-brand-600;
+  }
+
+  /* Form controls */
+  .field-input,
+  .field-select,
+  .field-textarea {
+    @apply block w-full rounded border border-line-strong bg-white px-3 text-sm text-ink placeholder:text-ink-faint/80 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/25 disabled:bg-muted-bg disabled:text-ink-faint;
+  }
+  .field-input,
+  .field-select {
+    @apply h-9;
+  }
+  .field-select {
+    @apply appearance-none pr-8;
+  }
+  .field-textarea {
+    @apply py-2 leading-relaxed;
+  }
+  .field-label {
+    @apply mb-1 block text-[13px] font-semibold text-ink;
+  }
+  .field-help {
+    @apply mt-1 text-meta text-ink-faint;
+  }
+  .field-error {
+    @apply mt-1 text-meta font-medium text-bad;
+  }
+
+  /* Data tables */
+  .data-table {
+    @apply w-full border-collapse text-left text-table text-ink;
+  }
+  .data-table thead th {
+    @apply whitespace-nowrap border-b border-line bg-[#e9eef5] px-3 py-2 text-[12.5px] font-semibold text-brand-900;
+  }
+  .data-table tbody td {
+    @apply border-b border-line-soft px-3 py-2.5 align-top;
+  }
+  .data-table tbody tr:nth-child(even) td {
+    @apply bg-[#fafbfc];
+  }
+  .data-table tbody tr.row-link:hover td {
+    @apply bg-brand-50;
+  }
+
+  /* Definition lists for metadata */
+  .meta-list {
+    @apply grid gap-x-6 gap-y-2 text-sm;
+  }
+  .meta-list dt {
+    @apply text-meta text-ink-faint;
+  }
+  .meta-list dd {
+    @apply text-ink;
+  }
+
+  /* Monospace identifiers */
+  .ident {
+    @apply font-mono text-[12.5px] text-ink;
+  }
+}
+
+/* Landing introduction: the image stretches to fit the card completely (100% 100%),
+   covering the whole card without cropping, with full warm, clear, vivid colors matching the AICTE portal. */
+.landing-hero {
+  position: relative;
+  background-color: #f7fafc;
+}
+.landing-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -20;
+  background-image: url('/assets/landing-hero-sm.jpg');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+@media (min-width: 768px) {
+  .landing-hero::after {
+    background-image: url('/assets/landing-hero.jpg');
+  }
+}
+
