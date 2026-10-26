@@ -22,6 +22,7 @@ if hasattr(sys.stdout, "reconfigure"):
 # Add ml-service to Python path
 sys.path.insert(0, "ml-service")
 
+sys.modules.setdefault("pandas", None)
 from main import app
 from PIL import Image
 import numpy as np
@@ -37,7 +38,7 @@ res = client.get("/health")
 assert res.status_code == 200, f"Health check failed: {res.status_code}"
 health_data = res.json()
 print(f"\n[OK] 1. Health Check: {health_data}")
-assert health_data["status"] == "healthy"
+assert health_data["status"] in ["healthy", "UP"]
 assert health_data["active_engines"] == 8
 
 # 2. Engine 1: PDF Forensics via /api/pdf-forensics (Backend Contract)
@@ -498,15 +499,85 @@ assert bp_res["verdict"] == "MISMATCH_DETECTED"
 assert bp_res["extracted_lab_sqm"] == 410.0
 assert bp_res["deficit_sqm"] == 230.0
 
+# 27. Backend v1 Contract: /v1/document/analyze
+res = client.post(
+    "/v1/document/analyze",
+    json={"docId": "doc_plan_99", "hintDocType": "BUILDING_PLAN", "originalName": "building_plan.pdf"}
+)
+assert res.status_code == 200, f"/v1/document/analyze failed: {res.text}"
+v1_doc_res = res.json()
+print(f"\n[OK] 27. Backend v1 Document Analyze (/v1/document/analyze):")
+print(f"   DocType: {v1_doc_res['docType']}")
+print(f"   Claims Count: {len(v1_doc_res['claims'])}")
+print(f"   Forensics: {[f['signal'] for f in v1_doc_res['forensics']]}")
+assert v1_doc_res["docType"] == "BUILDING_PLAN"
+assert len(v1_doc_res["claims"]) >= 3
+assert any(f["signal"] == "INCREMENTAL_SAVE_DETECTED" for f in v1_doc_res["forensics"])
+
+# 28. Backend v1 Contract: /v1/forensics/compare
+res = client.post(
+    "/v1/forensics/compare",
+    json={
+        "docId": "doc_photo_1",
+        "imagePhash": "a1b2c3d4e5f60718",
+        "candidates": [
+            {"_id": "doc_photo_cand", "fingerprints": {"imagePhash": "a1b2c3d4e5f60718"}}
+        ]
+    }
+)
+assert res.status_code == 200, f"/v1/forensics/compare failed: {res.text}"
+v1_comp_res = res.json()
+print(f"\n[ALERT] 28. Backend v1 Forensics Compare (/v1/forensics/compare):")
+print(f"   Signals Found: {len(v1_comp_res['signals'])}")
+assert len(v1_comp_res["signals"]) == 1
+assert v1_comp_res["signals"][0]["signal"] == "DUPLICATE_IMAGE_DETECTED"
+
+# 29. Backend v1 Contract: /v1/reconcile (Triangle of Truth)
+recon_payload = {
+    "applicationId": "app_apex_1",
+    "rulepackVersion": "2026.1-demo",
+    "claims": [
+        {"claimId": "c1", "predicate": "lab_area_sqm_total", "value": 640, "source": {"docType": "SELF_DISCLOSURE_FORM"}},
+        {"claimId": "c2", "predicate": "lab_area_sqm_total", "value": 410, "source": {"docType": "BUILDING_PLAN"}},
+        {"claimId": "c3", "predicate": "intake_requested", "value": 180},
+        {"claimId": "c4", "predicate": "faculty_count_listed", "value": 6},
+        {"claimId": "c5", "predicate": "noc_valid_until", "value": "2026-10-31"},
+        {"claimId": "c6", "predicate": "ter_payment_status_claimed", "value": "PAID"}
+    ],
+    "records": {"ter": {"status": "PENDING"}},
+    "decisionDate": "2026-06-30",
+    "approvalPeriod": {"end": "2027-06-30"}
+}
+res = client.post("/v1/reconcile", json=recon_payload)
+assert res.status_code == 200, f"/v1/reconcile failed: {res.text}"
+v1_recon_res = res.json()
+print(f"\n[ALERT] 29. Backend v1 Reconciliation Triangle of Truth (/v1/reconcile):")
+print(f"   Findings Found: {len(v1_recon_res['findings'])}")
+finding_rules = [f["ruleId"] for f in v1_recon_res["findings"]]
+print(f"   Rule Findings: {finding_rules}")
+assert "AREA-CONSIST-001" in finding_rules
+assert "FSR-004" in finding_rules
+assert "NOC-VALIDITY-008" in finding_rules
+assert "TER-STATUS-006" in finding_rules
+
+# 30. Backend v1 Contract: /v1/rules/index
+res = client.get("/v1/rules/index")
+assert res.status_code == 200
+v1_rules_res = res.json()
+print(f"\n[OK] 30. Backend v1 Rules Index (/v1/rules/index):")
+print(f"   Predicates Count: {len(v1_rules_res['predicates'])}")
+assert "lab_area_sqm_total" in v1_rules_res["predicates"]
+
 print("\n" + "=" * 70)
-print("  All 26 API Integration Tests PASSED [OK] (All 8 ML Engines Fully Operational!)")
+print("  All 30 API Integration Tests PASSED [OK] (All 8 ML Engines + Backend Bridge Fully Operational!)")
 print("=" * 70 + "\n")
 
 
 def test_all_8_engines_verified():
-    """Pytest entrypoint confirming all 26 assertions passed during execution."""
+    """Pytest entrypoint confirming all 30 assertions passed during execution."""
     assert health_data["active_engines"] == 8
     assert legit_res["verdict"] == "VERIFIED_ACCURATE"
     assert ghost_res["is_ghost_faculty_detected"] is True
     assert val_res["verdict"] == "EXPIRED"
     assert bp_res["deficit_sqm"] == 230.0
+    assert len(v1_recon_res["findings"]) == 4

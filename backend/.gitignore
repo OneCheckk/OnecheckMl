@@ -1,0 +1,7 @@
+node_modules/
+.env
+.env.local
+private_uploads/
+coverage/
+*.log
+.DS_Store

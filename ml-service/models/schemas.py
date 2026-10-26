@@ -27,6 +27,9 @@ class HealthResponse(BaseModel):
     service: str
     runtime: str
     active_engines: int
+    version: Optional[str] = "1.0.0"
+    tesseract: Optional[List[str]] = Field(default_factory=lambda: ["eng", "hin"])
+    classifier: Optional[str] = "keywords"
 
 
 class ErrorResponse(BaseModel):

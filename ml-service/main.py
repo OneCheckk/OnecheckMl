@@ -24,7 +24,9 @@ from fastapi.responses import JSONResponse
 from config import settings
 from models.schemas import HealthResponse
 
-# ── Routers — import as they are implemented ──────────────────────────────
+# Prevent pytesseract from eagerly loading heavy pandas library into memory (<350MB budget)
+sys.modules.setdefault("pandas", None)
+
 from routers.forensics_router import router as forensics_router
 from routers.imagehash_router import router as imagehash_router
 from routers.geofence_router import router as geofence_router
@@ -32,6 +34,7 @@ from routers.ocr_router import router as ocr_router
 from routers.faculty_router import router as faculty_router
 from routers.validity_router import router as validity_router
 from routers.blueprint_router import router as blueprint_router
+from routers.v1_bridge_router import router as v1_bridge_router
 
 # ── Logging ───────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -100,10 +103,13 @@ app.add_middleware(
 )
 def health_check() -> HealthResponse:
     return HealthResponse(
-        status="healthy",
+        status="UP",
         service="OneCheck-ML-Engine",
         runtime="Python 3.10+ CPU",
         active_engines=8,  # PDF + ELA + pHash + Geo-Fence + OCR + Faculty + Validity + Blueprint
+        version="1.0.0",
+        tesseract=["eng", "hin"],
+        classifier="keywords",
     )
 
 
@@ -227,4 +233,11 @@ app.include_router(
     prefix="/api",
     tags=["Backend Contract (Node.js compat.)"],
     include_in_schema=False,
+)
+
+# ── v1 Frozen Contract Bridge for Node.js Backend ────────────────────────
+app.include_router(
+    v1_bridge_router,
+    prefix="/v1",
+    tags=["v1 Backend Frozen Contract Bridge"],
 )
