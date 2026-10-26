@@ -6,7 +6,10 @@ class MongoMemoryServer {
   }
 
   static async create(options = {}) {
-    const rawUri = process.env.MONGODB_URI || 'mongodb+srv://khushigoel2200_db_user:Fb1YauGJZeLZXiUI@cluster0.disflgx.mongodb.net/';
+    if (!process.env.MONGODB_URI) {
+      require('dotenv').config();
+    }
+    const rawUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/';
     const testDbName = `test_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
     
     let uri = rawUri;
