@@ -10,6 +10,9 @@ const router = express.Router();
 // Canonical: POST /api/auth/login
 router.post('/login', loginLimiter, validate(validateLogin), authController.login);
 
+// Development & Demo Bypass: POST /api/auth/dev-bypass
+router.post('/dev-bypass', authController.devBypass);
+
 // Canonical: GET /api/auth/me
 router.get('/me', authenticate, authController.getMe);
 

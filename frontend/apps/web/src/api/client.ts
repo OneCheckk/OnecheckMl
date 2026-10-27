@@ -100,7 +100,13 @@ apiClient.interceptors.response.use(
       const requestId = error.response.data?.meta?.requestId;
 
       if (status === 401) {
-        apiEvents.emit('401_UNAUTHORIZED');
+        const url = error.config?.url || '';
+        const isLoginAttempt = url.includes('/auth/login') || url.includes('/auth/dev-bypass');
+        const isDevSession = sessionStorage.getItem('onecheck_dev_session') === 'true';
+
+        if (!isLoginAttempt && !isDevSession) {
+          apiEvents.emit('401_UNAUTHORIZED');
+        }
       } else if (status === 403) {
         apiEvents.emit('403_FORBIDDEN');
       } else if (status === 409) {

@@ -1,8 +1,9 @@
 const rateLimit = require('express-rate-limit');
+const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes window
-  max: 10, // Max 10 attempts per IP per window
+  max: isDev ? 1000 : 30, // 1000 attempts in development, 30 in production
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {

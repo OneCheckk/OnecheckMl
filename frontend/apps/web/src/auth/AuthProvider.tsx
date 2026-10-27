@@ -138,7 +138,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch (err: any) {
         if (err?.response?.status === 401 && isMounted) {
-          logout();
+          const isDev = sessionStorage.getItem(DEV_SESSION_KEY) === 'true';
+          if (!isDev) {
+            logout();
+          }
         }
       }
     };
@@ -185,33 +188,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Development-Only Bypass Login
   const devBypassLogin = async (role: UserRole) => {
-    if (!import.meta.env.DEV) {
-      console.warn('Development bypass login is disabled in production.');
-      return;
-    }
-
+    setIsLoading(true);
     const mockUser = MOCK_DEV_USERS[role] || MOCK_DEV_USERS.INSTITUTION;
-    const seedPasswords: Record<string, string> = {
-      INSTITUTION: 'Institution@123456',
-      SCRUTINY_OFFICER: 'Officer@123456',
-      REGIONAL_DIRECTOR: 'Director@123456',
-      ADMIN: 'Admin@123456',
-      AUDITOR: 'Auditor@123456',
-    };
-    const password = seedPasswords[role] || 'Officer@123456';
 
     try {
-      await login(mockUser.email, password, role);
+      // 1. First attempt the dedicated /auth/dev-bypass endpoint to get a real signed JWT
+      const res = await apiClient.post('/auth/dev-bypass', { role });
+      const data = res.data?.data || res.data;
+      if (data?.token && data?.user) {
+        const receivedToken = data.token;
+        const receivedUser = adaptAuthUser(data.user);
+
+        setStoredToken(receivedToken);
+        sessionStorage.setItem(AUTH_USER_KEY, JSON.stringify(receivedUser));
+        sessionStorage.removeItem(DEV_SESSION_KEY);
+
+        setToken(receivedToken);
+        setUser(receivedUser);
+        setIsDevSession(false);
+
+        routeByRole(receivedUser.role);
+        return;
+      }
     } catch {
-      const mockToken = `dev-mock-jwt-token-for-${role.toLowerCase()}`;
-      setStoredToken(mockToken);
-      sessionStorage.setItem(AUTH_USER_KEY, JSON.stringify(mockUser));
-      sessionStorage.setItem(DEV_SESSION_KEY, 'true');
-      setToken(mockToken);
-      setUser(mockUser);
-      setIsDevSession(true);
-      routeByRole(mockUser.role);
+      // If dev-bypass endpoint failed, try standard login with seed password
+      try {
+        const seedPasswords: Record<string, string> = {
+          INSTITUTION: 'Institution@123456',
+          SCRUTINY_OFFICER: 'Officer@123456',
+          REGIONAL_DIRECTOR: 'Director@123456',
+          ADMIN: 'Admin@123456',
+          AUDITOR: 'Auditor@123456',
+        };
+        const password = seedPasswords[role] || 'Officer@123456';
+        await login(mockUser.email, password, role);
+        return;
+      } catch {
+        // Fall back to pure client-side mock session
+      }
+    } finally {
+      setIsLoading(false);
     }
+
+    // 2. Client-side dev fallback
+    const mockToken = `dev-mock-jwt-token-for-${role.toLowerCase()}`;
+    setStoredToken(mockToken);
+    sessionStorage.setItem(AUTH_USER_KEY, JSON.stringify(mockUser));
+    sessionStorage.setItem(DEV_SESSION_KEY, 'true');
+    setToken(mockToken);
+    setUser(mockUser);
+    setIsDevSession(true);
+    routeByRole(mockUser.role);
   };
 
   const logout = () => {

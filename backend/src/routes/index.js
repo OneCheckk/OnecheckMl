@@ -52,9 +52,11 @@ router.get('/events', subscribe);
 
 const adminRoutes = require('./admin.routes');
 const benchmarkRoutes = require('./benchmark.routes');
+const syndicateRoutes = require('./syndicate.routes');
 
 router.use('/admin', adminRoutes);
 router.use('/benchmark', benchmarkRoutes);
+router.use('/syndicate', syndicateRoutes);
 
 // Spec Dev Tamper Endpoint: POST /api/dev/tamper-audit (DEMO_MODE / test only)
 router.post(
