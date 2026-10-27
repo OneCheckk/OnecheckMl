@@ -185,7 +185,6 @@ export const PageBreadcrumbs: React.FC<{ items: BreadcrumbItem[]; className?: st
     </ol>
   </nav>
 );
-
 // ==========================================
 // 4. Page header
 // ==========================================
@@ -897,8 +896,9 @@ export const Notice: React.FC<{
   children?: React.ReactNode;
   className?: string;
   onDismiss?: () => void;
+  onRetry?: () => void;
   role?: 'status' | 'alert' | 'note';
-}> = ({ tone = 'info', title, children, className, onDismiss, role }) => {
+}> = ({ tone = 'info', title, children, className, onDismiss, onRetry, role }) => {
   const Icon = tone === 'ok' ? CheckCircle2 : tone === 'bad' ? AlertCircle : tone === 'warn' ? AlertTriangle : Info;
   const tones = {
     info: 'border-info-line bg-info-bg text-ink',
@@ -918,6 +918,16 @@ export const Notice: React.FC<{
         {title && <p className="font-semibold">{title}</p>}
         {children && <div className={clsx(title && 'mt-0.5', 'text-ink-soft')}>{children}</div>}
       </div>
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="rounded border border-current/20 px-2 py-0.5 text-xs font-semibold hover:bg-black/5"
+          aria-label="Retry"
+        >
+          Retry
+        </button>
+      )}
       {onDismiss && (
         <button type="button" onClick={onDismiss} className="rounded p-0.5 text-ink-faint hover:text-ink" aria-label="Dismiss">
           <X className="h-4 w-4" />

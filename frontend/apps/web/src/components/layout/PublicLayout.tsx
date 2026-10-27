@@ -18,6 +18,10 @@ const PUBLIC_LINKS = [
 export const PublicLayout: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
+
+  // ADDED: Define isLanding based on the current location path
+  const isLanding = location.pathname === '/';
+
   const [open, setOpen] = useState(false);
 
   useEffect(() => setOpen(false), [location.pathname, location.hash]);
@@ -43,73 +47,75 @@ export const PublicLayout: React.FC = () => {
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
-      <GovtTopBar />
-      <header className="border-b border-line bg-white">
-        <div className="page flex h-[72px] items-center justify-between gap-3">
-          <BrandBlock />
-          <div className="flex items-center gap-2">
-            {isAuthenticated && user ? (
-              <Link
-                to={homePathForRole(user.role)}
-                className="hidden h-9 items-center rounded border border-brand-700 bg-brand-700 px-3.5 text-sm font-semibold text-white hover:bg-brand-800 sm:inline-flex"
-              >
-                Go to workspace
-              </Link>
-            ) : (
-              location.pathname !== '/login' && (
+      {!isLanding && <GovtTopBar />}
+      {!isLanding && (
+        <header className="border-b border-line bg-white">
+          <div className="page flex h-[72px] items-center justify-between gap-3">
+            <BrandBlock />
+            <div className="flex items-center gap-2">
+              {isAuthenticated && user ? (
                 <Link
-                  to="/login"
-                  className="hidden h-9 items-center gap-1.5 rounded border border-brand-700 bg-brand-700 px-3.5 text-sm font-semibold text-white hover:bg-brand-800 sm:inline-flex"
+                  to={homePathForRole(user.role)}
+                  className="hidden h-9 items-center rounded border border-brand-700 bg-brand-700 px-3.5 text-sm font-semibold text-white hover:bg-brand-800 sm:inline-flex"
                 >
-                  <LogIn className="h-4 w-4" aria-hidden="true" />
-                  Sign in
+                  Go to workspace
                 </Link>
-              )
-            )}
-            <button
-              type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded border border-line-strong md:hidden"
-              onClick={() => setOpen((v) => !v)}
-              aria-label={open ? 'Close menu' : 'Open menu'}
-              aria-expanded={open}
-              aria-controls="public-nav-mobile"
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+              ) : (
+                location.pathname !== '/login' && (
+                  <Link
+                    to="/login"
+                    className="hidden h-9 items-center gap-1.5 rounded border border-brand-700 bg-brand-700 px-3.5 text-sm font-semibold text-white hover:bg-brand-800 sm:inline-flex"
+                  >
+                    <LogIn className="h-4 w-4" aria-hidden="true" />
+                    Sign in
+                  </Link>
+                )
+              )}
+              <button
+                type="button"
+                className="inline-flex h-9 w-9 items-center justify-center rounded border border-line-strong md:hidden"
+                onClick={() => setOpen((v) => !v)}
+                aria-label={open ? 'Close menu' : 'Open menu'}
+                aria-expanded={open}
+                aria-controls="public-nav-mobile"
+              >
+                {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
-        </div>
-        <nav aria-label="Primary" className="hidden bg-brand-900 md:block">
-          <ul className="page flex items-stretch gap-0.5">
-            {PUBLIC_LINKS.map((l) => {
-              const active = l.exact ? location.pathname === '/' && !location.hash : location.pathname === '/' && location.hash === l.href.slice(1);
-              return (
-                <li key={l.href}>
-                  <Link to={l.href} className={linkClass(active)} aria-current={active ? 'page' : undefined}>
-                    {l.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-        {open && (
-          <nav id="public-nav-mobile" aria-label="Primary" className="border-t border-line bg-white md:hidden">
-            <ul className="py-1">
-              {[...PUBLIC_LINKS, { href: '/login', label: 'Sign in' }].map((l) => (
-                <li key={l.href}>
-                  <Link to={l.href} className="flex min-h-[44px] items-center px-4 text-[14.5px] text-ink hover:bg-brand-50">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
+          <nav aria-label="Primary" className="hidden bg-brand-900 md:block">
+            <ul className="page flex items-stretch gap-0.5">
+              {PUBLIC_LINKS.map((l) => {
+                const active = l.exact ? location.pathname === '/' && !location.hash : location.pathname === '/' && location.hash === l.href.slice(1);
+                return (
+                  <li key={l.href}>
+                    <Link to={l.href} className={linkClass(active)} aria-current={active ? 'page' : undefined}>
+                      {l.label}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </nav>
-        )}
-      </header>
+          {open && (
+            <nav id="public-nav-mobile" aria-label="Primary" className="border-t border-line bg-white md:hidden">
+              <ul className="py-1">
+                {[...PUBLIC_LINKS, { href: '/login', label: 'Sign in' }].map((l) => (
+                  <li key={l.href}>
+                    <Link to={l.href} className="flex min-h-[44px] items-center px-4 text-[14.5px] text-ink hover:bg-brand-50">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+        </header>
+      )}
       <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col focus:outline-none">
         <Outlet />
       </main>
-      <AppFooter />
+      {!isLanding && <AppFooter />}
     </div>
   );
 };

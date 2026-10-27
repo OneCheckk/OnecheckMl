@@ -373,7 +373,7 @@ export const SyndicateGraphView: React.FC = () => {
           </div>
         ) : isError ? (
           <div className="p-8">
-            <Notice tone="bad">
+            <Notice tone="bad" onRetry={() => refetch()}>
               Failed to load syndicate graph network from backend.
             </Notice>
           </div>
