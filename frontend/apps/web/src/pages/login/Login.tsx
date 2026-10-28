@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Check, Copy, Eye, EyeOff, KeyRound, LogIn, Terminal } from 'lucide-react';
+import { Check, Copy, Eye, EyeOff, KeyRound, LogIn, ShieldCheck, Terminal } from 'lucide-react';
 import type { UserRole } from '@contracts';
 import { useAuth } from '../../auth/AuthProvider';
 import { Button, FormField, Notice } from '../../components/ui';
@@ -129,7 +129,7 @@ export const LoginPage: React.FC = () => {
     setValue('email', account.email, { shouldValidate: true });
     setValue('password', account.password, { shouldValidate: true });
     setAuthError(null);
-    setFillFeedback(`Loaded ${account.role} credentials`);
+    setFillFeedback(`${account.role} credentials loaded`);
     setTimeout(() => setFillFeedback(null), 3000);
     setFocus('password');
   };
@@ -149,44 +149,34 @@ export const LoginPage: React.FC = () => {
   const busy = isLoading || isSubmitting;
 
   return (
-    <div className="page py-8 lg:py-10">
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[minmax(0,400px)_1fr] lg:gap-8">
-        {/* Sign-in panel */}
-        <section className="panel self-start" aria-labelledby="signin-title">
-          <div className="panel-header">
-            <h1 id="signin-title" className="text-[16px] font-semibold text-brand-900">
+    <div className="page py-8 lg:py-12 max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="grid gap-8 grid-cols-1 lg:grid-cols-[minmax(440px,490px)_1fr] items-start">
+        {/* Focused Hero Sign-in card (Enlarged, primary emphasis) */}
+        <section
+          className="relative bg-white rounded-2xl border border-slate-200/90 shadow-xl shadow-slate-900/5 p-6 sm:p-8 overflow-hidden ring-1 ring-slate-900/5"
+          aria-labelledby="signin-title"
+        >
+          {/* Subtle brand top accent bar */}
+          <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-brand-700 via-blue-600 to-indigo-600" />
+
+          <div className="mb-6 space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-brand-50 text-brand-800 border border-brand-200/70">
+              <ShieldCheck className="h-3.5 w-3.5 text-brand-700" />
+              Secure Portal Access
+            </span>
+            <h1 id="signin-title" className="text-2xl sm:text-[26px] font-extrabold text-brand-950 tracking-tight leading-tight">
               Sign in to OneCheck
             </h1>
-          </div>
-          <div className="panel-body space-y-4">
-            <p className="text-sm text-ink-soft">
-              Use the email address registered for your account. Your access is set by the role assigned to that
-              account.
+            <p className="text-sm text-slate-500 leading-relaxed">
+              Use your registered institutional or officer email address to access your scrutiny workspace.
             </p>
+          </div>
 
-            {/* Quick-fill chips */}
-            <div className="rounded border border-line bg-slate-50/80 p-2.5">
-              <span className="text-[11.5px] font-semibold text-ink-soft block mb-1.5">
-                Quick evaluation fill:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {DEMO_CREDENTIALS.map((acc) => (
-                  <button
-                    key={acc.email}
-                    type="button"
-                    onClick={() => handleFill(acc)}
-                    className="text-[11px] px-2 py-0.5 rounded border border-line bg-white hover:border-brand-500 hover:text-brand-800 transition-colors font-medium shadow-2xs"
-                  >
-                    {acc.role}
-                  </button>
-                ))}
-              </div>
-            </div>
-
+          <div className="space-y-4">
             {fillFeedback && (
-              <div className="text-[12px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 rounded px-2.5 py-1.5 flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
-                <span>{fillFeedback}. Click <strong>Sign in</strong> to proceed.</span>
+              <div className="text-[12.5px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span>{fillFeedback}. Click <strong>Sign in</strong> to continue.</span>
               </div>
             )}
 
@@ -209,7 +199,8 @@ export const LoginPage: React.FC = () => {
                   disabled={busy}
                   aria-invalid={!!errors.email}
                   aria-describedby={errors.email ? 'login-email-error' : undefined}
-                  className="field-input"
+                  className="field-input h-11 text-sm rounded-lg"
+                  placeholder="name@institution.ac.in or officer@onecheck.gov.in"
                   {...register('email')}
                 />
               </FormField>
@@ -223,13 +214,14 @@ export const LoginPage: React.FC = () => {
                     disabled={busy}
                     aria-invalid={!!errors.password}
                     aria-describedby={errors.password ? 'login-password-error' : undefined}
-                    className="field-input pr-10"
+                    className="field-input h-11 text-sm rounded-lg pr-10"
+                    placeholder="Enter account password"
                     {...register('password')}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-ink-faint hover:text-ink"
+                    className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-400 hover:text-slate-700"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                     aria-pressed={showPassword}
                   >
@@ -238,116 +230,122 @@ export const LoginPage: React.FC = () => {
                 </div>
               </FormField>
 
-              <div className="flex items-center justify-between text-sm">
-                <Link to="/forgot-password" className="link">
+              <div className="flex items-center justify-between text-sm pt-0.5">
+                <Link to="/forgot-password" className="text-brand-700 hover:text-brand-800 font-medium hover:underline text-xs sm:text-sm">
                   Forgot password?
                 </Link>
               </div>
 
-              <Button type="submit" size="lg" className="w-full" isLoading={busy}>
-                <LogIn className="h-4 w-4" aria-hidden="true" />
-                {busy ? 'Signing in…' : 'Sign in'}
+              <Button type="submit" size="lg" className="w-full h-11 text-sm font-bold shadow-sm rounded-xl" isLoading={busy}>
+                <LogIn className="h-4 w-4 mr-2" aria-hidden="true" />
+                {busy ? 'Signing in…' : 'Sign in to Portal'}
               </Button>
             </form>
 
-            <p className="border-t border-line-soft pt-3 text-sm text-ink-soft">
+            <p className="border-t border-slate-200/80 pt-4 text-xs sm:text-sm text-slate-500 text-center">
               New institution?{' '}
-              <Link to="/signup" className="link">
+              <Link to="/signup" className="text-brand-700 font-semibold hover:underline">
                 How to get an account
               </Link>
             </p>
           </div>
         </section>
 
-        {/* Information & Credentials section */}
-        <div className="space-y-6">
-          {/* 1. Demonstration Credentials Table — ALWAYS visible in deployment */}
-          <section aria-labelledby="demo-credentials-title" className="panel shadow-xs">
-            <div className="panel-header flex items-center justify-between">
-              <div>
-                <h2 id="demo-credentials-title" className="panel-title flex items-center gap-2">
-                  <KeyRound className="h-4 w-4 text-brand-700" aria-hidden="true" />
-                  Demonstration Credentials
-                </h2>
-                <p className="mt-0.5 text-xs text-ink-soft">
-                  Evaluation accounts for Smart India Hackathon jury scrutiny. Click <strong>Auto-fill</strong> or <strong>Sign In</strong> to test immediately.
-                </p>
+        {/* Right column: Compact Demonstration Credentials Card (Reduced footprint) */}
+        <div className="space-y-4">
+          <section
+            aria-labelledby="demo-credentials-title"
+            className="bg-white rounded-xl border border-slate-200/90 shadow-sm overflow-hidden"
+          >
+            {/* Slim Header */}
+            <div className="px-3.5 py-2.5 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-brand-50 border border-brand-200/80 flex items-center justify-center text-brand-700">
+                  <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
+                </div>
+                <div>
+                  <h2 id="demo-credentials-title" className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
+                    Demonstration Credentials
+                  </h2>
+                  <p className="text-[11px] text-slate-500">
+                    Pre-seeded test accounts for Smart India Hackathon jury scrutiny.
+                  </p>
+                </div>
               </div>
-              <span className="rounded-sm border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
+              <span className="shrink-0 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold text-[10.5px] px-2 py-0.5">
                 Evaluation Access
               </span>
             </div>
-            <div className="panel-body p-0 overflow-x-auto">
-              <table className="data-table w-full text-left text-xs sm:text-sm">
+
+            {/* Compact Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-line text-ink-soft">
-                    <th scope="col" className="whitespace-nowrap px-3 py-2.5">Role</th>
-                    <th scope="col" className="whitespace-nowrap px-3 py-2.5">Email Address</th>
-                    <th scope="col" className="whitespace-nowrap px-3 py-2.5">Password</th>
-                    <th scope="col" className="whitespace-nowrap px-3 py-2.5">Landing Page</th>
-                    <th scope="col" className="text-right whitespace-nowrap px-3 py-2.5">Action</th>
+                  <tr className="bg-slate-50/60 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th scope="col" className="whitespace-nowrap px-3 py-2">Role</th>
+                    <th scope="col" className="whitespace-nowrap px-3 py-2">Email Address</th>
+                    <th scope="col" className="whitespace-nowrap px-3 py-2">Password</th>
+                    <th scope="col" className="whitespace-nowrap px-3 py-2">Landing Page</th>
+                    <th scope="col" className="text-right whitespace-nowrap px-3 py-2">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-line-soft">
+                <tbody className="divide-y divide-slate-100">
                   {DEMO_CREDENTIALS.map((acc) => (
-                    <tr key={acc.email} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="font-semibold text-ink whitespace-nowrap px-3 py-2.5">
-                        <div>{acc.role}</div>
-                        <div className="text-[11px] font-normal text-ink-faint hidden xl:block max-w-[200px] truncate">
-                          {acc.description}
-                        </div>
+                    <tr key={acc.email} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="font-semibold text-slate-900 whitespace-nowrap px-3 py-2">
+                        {acc.role}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2.5">
-                        <div className="inline-flex items-center gap-1.5">
-                          <code className="rounded bg-[#1e293b] text-[#f8fafc] px-2 py-0.5 font-mono text-[11.5px] border border-slate-700">
+                      <td className="whitespace-nowrap px-3 py-2">
+                        <div className="inline-flex items-center gap-1">
+                          <code className="rounded bg-[#0f172a] text-[#f8fafc] px-1.5 py-0.5 font-mono text-[11px] tracking-tight border border-slate-800">
                             {acc.email}
                           </code>
                           <button
                             type="button"
                             onClick={() => handleCopy(acc.email, `email-${acc.email}`)}
                             title="Copy email"
-                            className="text-ink-faint hover:text-ink p-1 rounded hover:bg-slate-200 transition-colors"
+                            className="text-slate-400 hover:text-slate-700 p-0.5 rounded hover:bg-slate-100"
                             aria-label={`Copy email for ${acc.role}`}
                           >
                             {copiedField === `email-${acc.email}` ? (
-                              <Check className="h-3.5 w-3.5 text-emerald-600" />
+                              <Check className="h-3 w-3 text-emerald-600" />
                             ) : (
-                              <Copy className="h-3.5 w-3.5" />
+                              <Copy className="h-3 w-3" />
                             )}
                           </button>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2.5">
-                        <div className="inline-flex items-center gap-1.5">
-                          <code className="rounded bg-[#1e293b] text-[#f8fafc] px-2 py-0.5 font-mono text-[11.5px] border border-slate-700">
+                      <td className="whitespace-nowrap px-3 py-2">
+                        <div className="inline-flex items-center gap-1">
+                          <code className="rounded bg-[#0f172a] text-[#f8fafc] px-1.5 py-0.5 font-mono text-[11px] tracking-tight border border-slate-800">
                             {acc.password}
                           </code>
                           <button
                             type="button"
                             onClick={() => handleCopy(acc.password, `pass-${acc.email}`)}
                             title="Copy password"
-                            className="text-ink-faint hover:text-ink p-1 rounded hover:bg-slate-200 transition-colors"
+                            className="text-slate-400 hover:text-slate-700 p-0.5 rounded hover:bg-slate-100"
                             aria-label={`Copy password for ${acc.role}`}
                           >
                             {copiedField === `pass-${acc.email}` ? (
-                              <Check className="h-3.5 w-3.5 text-emerald-600" />
+                              <Check className="h-3 w-3 text-emerald-600" />
                             ) : (
-                              <Copy className="h-3.5 w-3.5" />
+                              <Copy className="h-3 w-3" />
                             )}
                           </button>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2.5">
-                        <span className="inline-block rounded bg-blue-50 border border-blue-200 text-blue-700 font-mono text-[11.5px] px-2 py-0.5 font-semibold">
+                      <td className="whitespace-nowrap px-3 py-2">
+                        <span className="inline-block rounded bg-blue-50 border border-blue-200/80 text-blue-700 font-mono text-[10.5px] px-1.5 py-0.5 font-semibold">
                           {acc.landingPage}
                         </span>
                       </td>
-                      <td className="text-right whitespace-nowrap px-3 py-2.5">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="text-right whitespace-nowrap px-3 py-2">
+                        <div className="inline-flex items-center justify-end gap-1">
                           <button
                             type="button"
                             onClick={() => handleFill(acc)}
-                            className="text-[12px] font-semibold px-2.5 py-1 rounded border border-line bg-white hover:bg-brand-50 hover:text-brand-800 hover:border-brand-300 transition-colors"
+                            className="text-[11px] font-semibold px-2 py-0.5 rounded border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition-colors"
                           >
                             Auto-fill
                           </button>
@@ -355,7 +353,7 @@ export const LoginPage: React.FC = () => {
                             type="button"
                             onClick={() => handleQuickLogin(acc)}
                             disabled={busy}
-                            className="text-[12px] font-semibold px-2.5 py-1 rounded bg-brand-700 hover:bg-brand-800 text-white transition-colors"
+                            className="text-[11px] font-semibold px-2 py-0.5 rounded bg-brand-700 hover:bg-brand-800 text-white transition-colors"
                           >
                             Sign In
                           </button>
@@ -366,61 +364,26 @@ export const LoginPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
-            <div className="bg-slate-50 border-t border-line px-4 py-2 text-xs text-ink-soft flex items-center justify-between">
-              <span>💡 Tip: Click <strong>Sign In</strong> next to any role to log in with that profile.</span>
-            </div>
-          </section>
 
-          {/* 2. Access by Role Table */}
-          <section aria-labelledby="access-title" className="panel">
-            <div className="panel-header">
-              <h2 id="access-title" className="panel-title">
-                Access by role
-              </h2>
-            </div>
-            <div className="panel-body p-0">
-              <table className="data-table w-full text-left text-sm border-0">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-line text-ink-soft">
-                    <th scope="col" className="px-3 py-2.5">Role</th>
-                    <th scope="col" className="px-3 py-2.5">After signing in</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line-soft">
-                  <tr>
-                    <td className="font-semibold px-3 py-2.5">Institution user</td>
-                    <td className="text-ink-soft px-3 py-2.5">Institution dashboard, applications and document uploads</td>
-                  </tr>
-                  <tr>
-                    <td className="font-semibold px-3 py-2.5">Scrutiny officer / Regional director</td>
-                    <td className="text-ink-soft px-3 py-2.5">Review queue, case inspection, alerts and deficiency letters</td>
-                  </tr>
-                  <tr>
-                    <td className="font-semibold px-3 py-2.5">Administrator</td>
-                    <td className="text-ink-soft px-3 py-2.5">Overview, institutions, users, checklists, rulepacks, audit trail</td>
-                  </tr>
-                  <tr>
-                    <td className="font-semibold px-3 py-2.5">Auditor</td>
-                    <td className="text-ink-soft px-3 py-2.5">Audit trail and chain verification</td>
-                  </tr>
-                </tbody>
-              </table>
+            {/* Slim Footer */}
+            <div className="px-3.5 py-1.5 bg-slate-50/70 border-t border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
+              <span>💡 Tip: Click <strong>Sign In</strong> next to any role to evaluate that portal view directly.</span>
             </div>
           </section>
 
           {IS_DEV && (
-            <section aria-labelledby="dev-title" className="panel">
-              <div className="panel-header">
-                <h2 id="dev-title" className="panel-title flex items-center gap-1.5">
-                  <Terminal className="h-4 w-4 text-ink-faint" aria-hidden="true" />
+            <section aria-labelledby="dev-title" className="panel p-3">
+              <div className="panel-header p-0 pb-2 border-0">
+                <h2 id="dev-title" className="panel-title flex items-center gap-1.5 text-xs">
+                  <Terminal className="h-3.5 w-3.5 text-ink-faint" aria-hidden="true" />
                   Development sign-in bypass
                 </h2>
               </div>
-              <div className="panel-body space-y-2 text-sm">
+              <div className="space-y-1.5 text-xs">
                 <p className="text-meta text-ink-faint">
                   Development builds only. Directly creates an authenticated role session without typing.
                 </p>
-                <div className="flex flex-wrap gap-1.5 pt-1">
+                <div className="flex flex-wrap gap-1 pt-1">
                   {DEV_ROLES.map((r) => (
                     <Button key={r.role} variant="outline" size="sm" onClick={() => devBypassLogin(r.role)}>
                       {r.label}
