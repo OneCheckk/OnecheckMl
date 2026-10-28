@@ -1,0 +1,10 @@
+{
+  "name": "onecheckml",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix frontend/apps/web",
+    "start": "npm run preview --prefix frontend/apps/web",
+    "preview": "npm run preview --prefix frontend/apps/web"
+  }
+}
