@@ -159,14 +159,8 @@ export const AppRoutes: React.FC = () => {
         />
 
         {/* Network Syndicate Visualization (Feature 1) */}
-        <Route
-          path="/syndicate"
-          element={
-            <RequireRole roles={[...ROUTE_ROLES.syndicate]}>
-              <NetworkSyndicatePage />
-            </RequireRole>
-          }
-        />
+        <Route path="/syndicate" element={<NetworkSyndicatePage />} />
+
 
         {/* Audit */}
         <Route

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
-import { LogOut, Menu, X, Sliders, ChevronDown, UserCircle2 } from 'lucide-react';
+import { LogOut, Menu, X, Sliders, ChevronDown, UserCircle2, Network, LogIn } from 'lucide-react';
 import { useAuth } from '../../auth/AuthProvider';
 import { GovtTopBar, AppFooter, BrandBlock } from '../ui';
 import { DemoControlsDrawer } from '../demo/DemoControlsDrawer';
@@ -43,7 +43,9 @@ export const AppLayout: React.FC = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const navItems = navItemsForRole(user?.role);
+  const navItems: NavItem[] = user
+    ? navItemsForRole(user.role)
+    : [{ to: '/syndicate', label: 'Syndicate Network', icon: Network, roles: [], end: false }];
   const canUseDemoControls = isOfficerRole(user?.role) || user?.role === 'ADMIN';
   const isCaseView = /^\/review\/[^/]+/.test(location.pathname);
 
@@ -107,45 +109,54 @@ export const AppLayout: React.FC = () => {
                 Demo controls
               </button>
             )}
-            <div className="relative" ref={userMenuRef}>
-              <button
-                type="button"
-                onClick={() => setUserMenuOpen((v) => !v)}
-                aria-haspopup="menu"
-                aria-expanded={userMenuOpen}
-                className="flex items-center gap-2 rounded px-1.5 py-1 text-left hover:bg-brand-50"
-              >
-                <UserCircle2 className="h-7 w-7 text-brand-700" aria-hidden="true" />
-                <span className="hidden min-w-0 sm:block">
-                  <span className="block max-w-[220px] truncate text-[13.5px] font-semibold text-ink">{user?.name || user?.email}</span>
-                  <span className="block text-[12px] text-ink-faint">{roleLabel(user?.role)}</span>
-                </span>
-                <ChevronDown className="h-4 w-4 text-ink-faint" aria-hidden="true" />
-              </button>
-              {userMenuOpen && (
-                <div role="menu" className="absolute right-0 z-40 mt-1 w-64 rounded border border-line bg-white py-1 text-sm shadow-lg">
-                  <div className="border-b border-line-soft px-3 py-2">
-                    <p className="truncate font-semibold text-ink">{user?.name}</p>
-                    <p className="truncate text-meta text-ink-faint">{user?.email}</p>
-                    <p className="mt-1 text-meta text-ink-soft">
-                      Role: <span className="font-mono text-[12px]">{user?.role}</span>
-                    </p>
-                    {user?.institutionName && <p className="text-meta text-ink-soft">{user.institutionName}</p>}
-                  </div>
-                  {canUseDemoControls && (
-                    <button role="menuitem" type="button" onClick={() => setShowDemoDrawer(true)} className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-brand-50 md:hidden">
-                      <Sliders className="h-4 w-4 text-ink-faint" /> Demo controls
+            {user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  aria-haspopup="menu"
+                  aria-expanded={userMenuOpen}
+                  className="flex items-center gap-2 rounded px-1.5 py-1 text-left hover:bg-brand-50"
+                >
+                  <UserCircle2 className="h-7 w-7 text-brand-700" aria-hidden="true" />
+                  <span className="hidden min-w-0 sm:block">
+                    <span className="block max-w-[220px] truncate text-[13.5px] font-semibold text-ink">{user.name || user.email}</span>
+                    <span className="block text-[12px] text-ink-faint">{roleLabel(user.role)}</span>
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-ink-faint" aria-hidden="true" />
+                </button>
+                {userMenuOpen && (
+                  <div role="menu" className="absolute right-0 z-40 mt-1 w-64 rounded border border-line bg-white py-1 text-sm shadow-lg">
+                    <div className="border-b border-line-soft px-3 py-2">
+                      <p className="truncate font-semibold text-ink">{user.name}</p>
+                      <p className="truncate text-meta text-ink-faint">{user.email}</p>
+                      <p className="mt-1 text-meta text-ink-soft">
+                        Role: <span className="font-mono text-[12px]">{user.role}</span>
+                      </p>
+                      {user.institutionName && <p className="text-meta text-ink-soft">{user.institutionName}</p>}
+                    </div>
+                    {canUseDemoControls && (
+                      <button role="menuitem" type="button" onClick={() => setShowDemoDrawer(true)} className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-brand-50 md:hidden">
+                        <Sliders className="h-4 w-4 text-ink-faint" /> Demo controls
+                      </button>
+                    )}
+                    <button role="menuitem" type="button" onClick={() => setHelpOpen(true)} className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-brand-50">
+                      Help and status guide
                     </button>
-                  )}
-                  <button role="menuitem" type="button" onClick={() => setHelpOpen(true)} className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-brand-50">
-                    Help and status guide
-                  </button>
-                  <button role="menuitem" type="button" onClick={logout} className="flex w-full items-center gap-2 px-3 py-2 text-left text-bad hover:bg-bad-bg">
-                    <LogOut className="h-4 w-4" /> Sign out
-                  </button>
-                </div>
-              )}
-            </div>
+                    <button role="menuitem" type="button" onClick={logout} className="flex w-full items-center gap-2 px-3 py-2 text-left text-bad hover:bg-bad-bg">
+                      <LogOut className="h-4 w-4" /> Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <NavLink
+                to="/login"
+                className="inline-flex h-8 items-center gap-1.5 rounded border border-brand-700 bg-brand-700 px-3 text-xs font-semibold text-white hover:bg-brand-800"
+              >
+                <LogIn className="h-3.5 w-3.5" /> Sign in
+              </NavLink>
+            )}
             <button
               type="button"
               className="inline-flex h-9 w-9 items-center justify-center rounded border border-line-strong lg:hidden"

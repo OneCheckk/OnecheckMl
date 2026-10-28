@@ -19,7 +19,7 @@ export const ROUTE_ROLES = {
   admin: ['ADMIN'] as UserRole[],
   audit: ['AUDITOR', 'ADMIN'] as UserRole[],
   benchmark: ['ADMIN', ...OFFICER_ROLES] as UserRole[],
-  syndicate: [...OFFICER_ROLES, 'ADMIN', 'AUDITOR'] as UserRole[],
+  syndicate: [...OFFICER_ROLES, 'ADMIN', 'AUDITOR', ...INSTITUTION_ROLES] as UserRole[],
 } as const;
 
 /** Landing route after sign-in, and the "return" target on a 403 screen. */
