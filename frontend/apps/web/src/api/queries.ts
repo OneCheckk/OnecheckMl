@@ -1381,14 +1381,37 @@ export const useSyndicateNodeProof = (nodeId: string | null) =>
     queryKey: ['syndicate', 'node', nodeId],
     queryFn: async () => {
       if (!nodeId) return null;
+      const localProof = getFallbackNodeProof(nodeId);
       try {
         const res = await apiClient.get<any>(`/syndicate/node/${encodeURIComponent(nodeId)}`);
-        return res.data?.data;
+        const serverData = res.data?.data;
+        // Verify server data is authentic and not a stale placeholder:
+        // 1. It must have the matching ID
+        // 2. If it's a college, its name must match the expected node name (not Paramount for other nodes)
+        // 3. It must not have the old templated registrationId `AICTE-${nodeId}`
+        if (
+          serverData &&
+          serverData.id === nodeId &&
+          serverData.name &&
+          serverData.registrationId !== `AICTE-${nodeId}` &&
+          !(nodeId !== 'COL-CARTEL-02' && serverData.name.toLowerCase().includes('paramount'))
+        ) {
+          return {
+            ...localProof,
+            ...serverData,
+            associatedColleges: serverData.associatedColleges || localProof?.associatedColleges || [],
+            facultyList: serverData.facultyList || localProof?.facultyList || [],
+            colludingInstitutions: serverData.colludingInstitutions || localProof?.colludingInstitutions || [],
+            definitiveProof: { ...localProof?.definitiveProof, ...serverData.definitiveProof },
+          };
+        }
       } catch {
-        return getFallbackNodeProof(nodeId);
+        // network or offline fallback
       }
+      return localProof;
     },
     enabled: !!nodeId,
+    initialData: nodeId ? getFallbackNodeProof(nodeId) : null,
   });
 
 export const useReseedSyndicate = () => {

@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Button, Notice, Skeleton } from '../ui';
 import { ProofSidePanel } from './ProofSidePanel';
-import { useSyndicateGraph, useReseedSyndicate, useSyndicateNodeProof } from '../../api/queries';
+import { useSyndicateGraph, useReseedSyndicate, useSyndicateNodeProof, getFallbackNodeProof } from '../../api/queries';
 
 export const SyndicateGraphView: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,6 +32,7 @@ export const SyndicateGraphView: React.FC = () => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const { data: selectedProof } = useSyndicateNodeProof(selectedNodeId);
+  const displayProof = selectedProof || (selectedNodeId ? getFallbackNodeProof(selectedNodeId) : null);
 
   const [layoutMode, setLayoutMode] = useState<'cose' | 'circle' | 'concentric'>('cose');
   const [showFacultyNodes, setShowFacultyNodes] = useState(true);
@@ -94,16 +95,19 @@ export const SyndicateGraphView: React.FC = () => {
             width: 'data(size)',
             height: 'data(size)',
             label: 'data(label)',
-            'font-size': '9px',
+            'font-size': '10px',
             'font-weight': 600,
-            color: '#7f1d1d',
+            color: '#f8fafc',
             'text-valign': 'bottom',
-            'text-margin-y': 5,
-            'border-width': 2,
-            'border-color': '#fca5a5',
-            'shadow-blur': 6,
-            'shadow-color': 'rgba(239, 68, 68, 0.3)',
-            'shadow-opacity': 0.6,
+            'text-margin-y': 6,
+            'text-outline-color': '#0f172a',
+            'text-outline-width': 2,
+            'border-width': 3,
+            'border-color': '#f87171',
+            'shadow-blur': 12,
+            'shadow-color': 'rgba(239, 68, 68, 0.4)',
+            'shadow-opacity': 0.8,
+            'cursor': 'pointer',
           },
         },
         // Severity Connection Lines (Thickness = Severity of shared resources)
@@ -177,11 +181,9 @@ export const SyndicateGraphView: React.FC = () => {
       } as any,
     });
 
-    // Tap node handler -> Selects node and updates both floating card and side panel
-    cy.on('tap', 'node', (evt: EventObject) => {
+    // Tap or select node handler -> Selects node and updates both floating card and side panel
+    cy.on('tap select', 'node', (evt: EventObject) => {
       const node = evt.target;
-      cy.nodes().unselect();
-      node.select();
       setSelectedNodeId(node.id());
       setIsPanelOpen(true);
     });
@@ -427,21 +429,21 @@ export const SyndicateGraphView: React.FC = () => {
         </div>
 
         {/* Floating Card: Selected Node Inspector OR Cartel Summary Badge */}
-        {selectedNodeId && selectedProof ? (
+        {selectedNodeId && displayProof ? (
           <div className="absolute top-5 left-5 z-20 max-w-sm w-full rounded-xl border border-indigo-500/40 bg-slate-950/95 p-3.5 text-xs backdrop-blur shadow-2xl transition-all duration-200">
             {/* Header with Type & Status */}
             <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-white/10">
               <div className="flex items-center gap-2 min-w-0">
                 <div
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${
-                    selectedProof.type === 'faculty'
+                    displayProof.type === 'faculty'
                       ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                      : selectedProof.isCartelMember
+                      : displayProof.isCartelMember
                       ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                       : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                   }`}
                 >
-                  {selectedProof.type === 'faculty' ? (
+                  {displayProof.type === 'faculty' ? (
                     <Fingerprint className="h-3.5 w-3.5" />
                   ) : (
                     <Building2 className="h-3.5 w-3.5" />
@@ -449,16 +451,16 @@ export const SyndicateGraphView: React.FC = () => {
                 </div>
                 <span
                   className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                    selectedProof.type === 'faculty'
+                    displayProof.type === 'faculty'
                       ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                      : selectedProof.isCartelMember
+                      : displayProof.isCartelMember
                       ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                       : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                   }`}
                 >
-                  {selectedProof.type === 'faculty'
-                    ? `${selectedProof.identifierType} HASH`
-                    : selectedProof.isCartelMember
+                  {displayProof.type === 'faculty'
+                    ? `${displayProof.identifierType} HASH`
+                    : displayProof.isCartelMember
                     ? 'CARTEL PARTICIPANT'
                     : 'COMPLIANT NODE'}
                 </span>
@@ -479,31 +481,31 @@ export const SyndicateGraphView: React.FC = () => {
 
             {/* Title & Metadata */}
             <h3 className="text-sm font-bold text-white leading-tight">
-              {selectedProof.name}
+              {displayProof.name}
             </h3>
             <p className="mt-0.5 text-[11px] text-slate-400">
-              {selectedProof.type === 'college'
-                ? `${selectedProof.city}, ${selectedProof.state} • Reg: ${selectedProof.registrationId}`
-                : `Department: ${selectedProof.department}`}
+              {displayProof.type === 'college'
+                ? `${displayProof.city}, ${displayProof.state} • Reg: ${displayProof.registrationId}`
+                : `Department: ${displayProof.department}`}
             </p>
 
             {/* Metric snapshot */}
             <div className="mt-2.5 grid grid-cols-2 gap-2 rounded-lg bg-slate-900/90 p-2 border border-white/5 text-[11px]">
-              {selectedProof.type === 'college' ? (
+              {displayProof.type === 'college' ? (
                 <>
                   <div>
                     <span className="text-slate-400 text-[10px] uppercase font-semibold">Risk Score</span>
                     <div className="flex items-baseline gap-1 font-bold">
-                      <span className={`text-base ${selectedProof.riskScore > 50 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                        {selectedProof.riskScore}
+                      <span className={`text-base ${displayProof.riskScore > 50 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                        {displayProof.riskScore}
                       </span>
-                      <span className="text-slate-400 text-[10px]">/ 100 ({selectedProof.riskLevel})</span>
+                      <span className="text-slate-400 text-[10px]">/ 100 ({displayProof.riskLevel})</span>
                     </div>
                   </div>
                   <div>
                     <span className="text-slate-400 text-[10px] uppercase font-semibold">Ghost Overlaps</span>
                     <div className="font-bold text-base text-amber-300">
-                      {selectedProof.sharedFacultyCount} <span className="text-slate-400 text-[10px] font-normal">of {selectedProof.facultyCount}</span>
+                      {displayProof.sharedFacultyCount} <span className="text-slate-400 text-[10px] font-normal">of {displayProof.facultyCount}</span>
                     </div>
                   </div>
                 </>
@@ -512,13 +514,13 @@ export const SyndicateGraphView: React.FC = () => {
                   <div>
                     <span className="text-slate-400 text-[10px] uppercase font-semibold">Identifier</span>
                     <div className="font-bold text-xs text-rose-300">
-                      {selectedProof.identifierType}
+                      {displayProof.identifierType}
                     </div>
                   </div>
                   <div>
                     <span className="text-slate-400 text-[10px] uppercase font-semibold">Claiming Colleges</span>
                     <div className="font-bold text-base text-amber-300">
-                      {selectedProof.associatedColleges?.length || 0}
+                      {displayProof.associatedColleges?.length || 0}
                     </div>
                   </div>
                 </>
@@ -527,7 +529,7 @@ export const SyndicateGraphView: React.FC = () => {
 
             {/* AI Finding summary */}
             <p className="mt-2 text-[11px] text-slate-300 leading-snug line-clamp-2">
-              {selectedProof.definitiveProof?.statement}
+              {displayProof.definitiveProof?.statement}
             </p>
 
             {/* Action buttons */}
