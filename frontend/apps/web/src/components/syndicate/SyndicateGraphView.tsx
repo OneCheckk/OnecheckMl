@@ -12,11 +12,15 @@ import {
   ShieldAlert,
   Search,
   SlidersHorizontal,
-  Code2
+  Code2,
+  Building2,
+  Fingerprint,
+  ArrowRight,
+  X
 } from 'lucide-react';
 import { Button, Notice, Skeleton } from '../ui';
 import { ProofSidePanel } from './ProofSidePanel';
-import { useSyndicateGraph, useReseedSyndicate } from '../../api/queries';
+import { useSyndicateGraph, useReseedSyndicate, useSyndicateNodeProof } from '../../api/queries';
 
 export const SyndicateGraphView: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +30,9 @@ export const SyndicateGraphView: React.FC = () => {
   const reseedMutation = useReseedSyndicate();
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const { data: selectedProof } = useSyndicateNodeProof(selectedNodeId);
+
   const [layoutMode, setLayoutMode] = useState<'cose' | 'circle' | 'concentric'>('cose');
   const [showFacultyNodes, setShowFacultyNodes] = useState(true);
   const [cartelHighlight, setCartelHighlight] = useState(true);
@@ -170,16 +177,21 @@ export const SyndicateGraphView: React.FC = () => {
       } as any,
     });
 
-    // Tap node handler -> Opens side panel with definitive proof
+    // Tap node handler -> Selects node and updates both floating card and side panel
     cy.on('tap', 'node', (evt: EventObject) => {
       const node = evt.target;
+      cy.nodes().unselect();
+      node.select();
       setSelectedNodeId(node.id());
+      setIsPanelOpen(true);
     });
 
     // Tap background handler -> Deselect
     cy.on('tap', (evt: EventObject) => {
       if (evt.target === cy) {
+        cy.nodes().unselect();
         setSelectedNodeId(null);
+        setIsPanelOpen(false);
       }
     });
 
@@ -234,6 +246,7 @@ export const SyndicateGraphView: React.FC = () => {
       });
       cartelNodes.select();
       setSelectedNodeId('COL-CARTEL-01');
+      setIsPanelOpen(true);
     }
   };
 
@@ -250,7 +263,7 @@ export const SyndicateGraphView: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-bold tracking-tight text-white sm:text-base">
-                Network Syndicate Fraud Engine
+                Network Syndicate Anomaly Engine
               </h2>
               <span className="rounded-full bg-rose-500/20 border border-rose-400/30 px-2.5 py-0.5 text-[10px] font-bold text-rose-300">
                 5-COLLEGE CARTEL DETECTED
@@ -290,10 +303,10 @@ export const SyndicateGraphView: React.FC = () => {
             onClick={() => reseedMutation.mutate()}
             isLoading={reseedMutation.isPending}
             className="border-white/20 bg-white/5 text-slate-300 hover:bg-white/10"
-            title="Re-seed synthetic colleges and ghost faculty using Faker.js"
+            title="Re-seed synthetic colleges and ghost faculty using synthetic generator"
           >
             <RefreshCw className="h-3.5 w-3.5 mr-1" />
-            Re-seed Faker.js
+            Re-seed Synthetic Data
           </Button>
         </div>
       </div>
@@ -413,8 +426,133 @@ export const SyndicateGraphView: React.FC = () => {
           </button>
         </div>
 
-        {/* Floating Cartel Summary Badge */}
-        {cartelInfo && (
+        {/* Floating Card: Selected Node Inspector OR Cartel Summary Badge */}
+        {selectedNodeId && selectedProof ? (
+          <div className="absolute top-5 left-5 z-20 max-w-sm w-full rounded-xl border border-indigo-500/40 bg-slate-950/95 p-3.5 text-xs backdrop-blur shadow-2xl transition-all duration-200">
+            {/* Header with Type & Status */}
+            <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-white/10">
+              <div className="flex items-center gap-2 min-w-0">
+                <div
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${
+                    selectedProof.type === 'faculty'
+                      ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                      : selectedProof.isCartelMember
+                      ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                      : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  }`}
+                >
+                  {selectedProof.type === 'faculty' ? (
+                    <Fingerprint className="h-3.5 w-3.5" />
+                  ) : (
+                    <Building2 className="h-3.5 w-3.5" />
+                  )}
+                </div>
+                <span
+                  className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    selectedProof.type === 'faculty'
+                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                      : selectedProof.isCartelMember
+                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                      : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  }`}
+                >
+                  {selectedProof.type === 'faculty'
+                    ? `${selectedProof.identifierType} HASH`
+                    : selectedProof.isCartelMember
+                    ? 'CARTEL PARTICIPANT'
+                    : 'COMPLIANT NODE'}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedNodeId(null);
+                  setIsPanelOpen(false);
+                  if (cyRef.current) cyRef.current.nodes().unselect();
+                }}
+                className="rounded p-1 text-slate-400 hover:text-white hover:bg-white/10 transition"
+                title="Deselect node"
+                type="button"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            {/* Title & Metadata */}
+            <h3 className="text-sm font-bold text-white leading-tight">
+              {selectedProof.name}
+            </h3>
+            <p className="mt-0.5 text-[11px] text-slate-400">
+              {selectedProof.type === 'college'
+                ? `${selectedProof.city}, ${selectedProof.state} • Reg: ${selectedProof.registrationId}`
+                : `Department: ${selectedProof.department}`}
+            </p>
+
+            {/* Metric snapshot */}
+            <div className="mt-2.5 grid grid-cols-2 gap-2 rounded-lg bg-slate-900/90 p-2 border border-white/5 text-[11px]">
+              {selectedProof.type === 'college' ? (
+                <>
+                  <div>
+                    <span className="text-slate-400 text-[10px] uppercase font-semibold">Risk Score</span>
+                    <div className="flex items-baseline gap-1 font-bold">
+                      <span className={`text-base ${selectedProof.riskScore > 50 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                        {selectedProof.riskScore}
+                      </span>
+                      <span className="text-slate-400 text-[10px]">/ 100 ({selectedProof.riskLevel})</span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 text-[10px] uppercase font-semibold">Ghost Overlaps</span>
+                    <div className="font-bold text-base text-amber-300">
+                      {selectedProof.sharedFacultyCount} <span className="text-slate-400 text-[10px] font-normal">of {selectedProof.facultyCount}</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <span className="text-slate-400 text-[10px] uppercase font-semibold">Identifier</span>
+                    <div className="font-bold text-xs text-rose-300">
+                      {selectedProof.identifierType}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 text-[10px] uppercase font-semibold">Claiming Colleges</span>
+                    <div className="font-bold text-base text-amber-300">
+                      {selectedProof.associatedColleges?.length || 0}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* AI Finding summary */}
+            <p className="mt-2 text-[11px] text-slate-300 leading-snug line-clamp-2">
+              {selectedProof.definitiveProof?.statement}
+            </p>
+
+            {/* Action buttons */}
+            <div className="mt-2.5 flex items-center justify-between gap-2 pt-2 border-t border-white/10">
+              <button
+                onClick={() => setIsPanelOpen(true)}
+                type="button"
+                className="inline-flex items-center gap-1 rounded bg-indigo-600 hover:bg-indigo-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow-xs transition"
+              >
+                Inspect Full Dossier <ArrowRight className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedNodeId(null);
+                  setIsPanelOpen(false);
+                  if (cyRef.current) cyRef.current.nodes().unselect();
+                }}
+                type="button"
+                className="text-[11px] text-slate-400 hover:text-white"
+              >
+                Reset view
+              </button>
+            </div>
+          </div>
+        ) : cartelInfo ? (
           <div className="absolute top-5 left-5 z-20 max-w-sm rounded-xl border border-rose-500/30 bg-slate-950/85 p-3.5 text-xs backdrop-blur shadow-xl">
             <div className="flex items-center gap-2 font-bold text-rose-400">
               <ShieldAlert className="h-4 w-4" />
@@ -427,25 +565,32 @@ export const SyndicateGraphView: React.FC = () => {
               <span>Average Risk: <strong className="text-rose-400 font-bold">{cartelInfo.riskScoreAvg} / 100</strong></span>
               <span>Roster Clones: <strong className="text-amber-400 font-bold">{cartelInfo.totalSharedGhostFaculty}</strong></span>
             </div>
+            <p className="mt-2 border-t border-white/5 pt-1.5 text-[10.5px] text-indigo-300/80">
+              💡 Tip: Click on any college or faculty node to inspect its specific profile and evidence.
+            </p>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Slide-over Proof Side Panel */}
-      <ProofSidePanel
-        nodeId={selectedNodeId}
-        onClose={() => setSelectedNodeId(null)}
-        onSelectNode={(id) => {
-          setSelectedNodeId(id);
-          if (cyRef.current) {
-            const target = cyRef.current.getElementById(id);
-            if (target && target.length > 0) {
-              cyRef.current.animate({ center: { eles: target }, zoom: 1.6, duration: 500 });
-              target.select();
+      {isPanelOpen && (
+        <ProofSidePanel
+          nodeId={selectedNodeId}
+          onClose={() => setIsPanelOpen(false)}
+          onSelectNode={(id) => {
+            setSelectedNodeId(id);
+            setIsPanelOpen(true);
+            if (cyRef.current) {
+              const target = cyRef.current.getElementById(id);
+              if (target && target.length > 0) {
+                cyRef.current.nodes().unselect();
+                cyRef.current.animate({ center: { eles: target }, zoom: 1.6, duration: 500 });
+                target.select();
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+      )}
 
       {/* Cypher Queries Inspection Modal */}
       {showCypherModal && (

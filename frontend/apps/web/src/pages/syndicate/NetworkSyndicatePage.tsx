@@ -8,7 +8,7 @@ export const NetworkSyndicatePage: React.FC = () => {
     <div className="page py-6 space-y-6">
       <PageHeader
         title="Network Syndicate Visualization"
-        description="Graph database topology uncovering organized institutional fraud rings, multi-hop connections, and recycled faculty rosters across AICTE institutions."
+        description="Graph database topology uncovering organized institutional syndicate rings, multi-hop connections, and recycled faculty rosters across AICTE institutions."
         breadcrumbs={[{ label: 'Oversight' }, { label: 'Syndicate Network' }]}
       />
 

@@ -153,44 +153,54 @@ export const ProofSidePanel: React.FC<ProofSidePanelProps> = ({
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-ink-faint mb-2 flex items-center gap-1.5">
                 <Layers className="h-3.5 w-3.5 text-brand-700" />
-                Colluding Syndicate Institutions ({proof.colludingInstitutions.length})
+                Colluding Syndicate Institutions ({proof.colludingInstitutions?.length ?? 0})
               </h4>
-              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                {proof.colludingInstitutions.map((c: any) => (
-                  <button
-                    key={c.id}
-                    onClick={() => onSelectNode(c.id)}
-                    type="button"
-                    className="flex w-full items-center justify-between rounded-lg border border-line bg-white p-2.5 text-left text-xs transition hover:border-brand-500 hover:bg-brand-50/50"
-                  >
-                    <div className="min-w-0 pr-2">
-                      <p className="font-semibold text-ink truncate">{c.name}</p>
-                      <p className="text-[11px] text-ink-faint">{c.state} • Score: {c.riskScore}</p>
-                    </div>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-ink-faint" />
-                  </button>
-                ))}
-              </div>
+              {(proof.colludingInstitutions?.length ?? 0) === 0 ? (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 text-xs text-emerald-900 font-medium flex items-center gap-2">
+                  <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span>No colluding or shared syndicate links detected. Fully compliant standalone institution.</span>
+                </div>
+              ) : (
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  {proof.colludingInstitutions.map((c: any) => (
+                    <button
+                      key={c.id}
+                      onClick={() => onSelectNode(c.id)}
+                      type="button"
+                      className="flex w-full items-center justify-between rounded-lg border border-line bg-white p-2.5 text-left text-xs transition hover:border-brand-500 hover:bg-brand-50/50"
+                    >
+                      <div className="min-w-0 pr-2">
+                        <p className="font-semibold text-ink truncate">{c.name}</p>
+                        <p className="text-[11px] text-ink-faint">{c.state} • Score: {c.riskScore}</p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-ink-faint" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Shared Faculty Hashes */}
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-ink-faint mb-2 flex items-center gap-1.5">
                 <Fingerprint className="h-3.5 w-3.5 text-rose-600" />
-                Shared Ghost Faculty Hashes ({proof.facultyList.length})
+                {proof.isCartelMember ? 'Shared Ghost Faculty Hashes' : 'Verified Faculty Roster Hashes'} ({proof.facultyList?.length ?? 0})
               </h4>
               <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                {proof.facultyList.map((f: any) => (
+                {(proof.facultyList || []).map((f: any) => (
                   <div
                     key={f.id}
                     className="rounded-lg border border-line bg-white p-2.5 text-xs shadow-2xs space-y-1.5"
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-ink">{f.name}</span>
-                      <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold text-rose-800">
-                        {f.identifierType}
+                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+                        f.isGhost ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {f.identifierType} {f.isGhost ? 'GHOST' : 'VERIFIED'}
                       </span>
                     </div>
+                    <p className="text-[11px] text-ink-faint">{f.department}</p>
                     <div className="flex items-center justify-between rounded bg-slate-100 px-2 py-1 font-mono text-[11px] text-slate-700">
                       <span className="truncate max-w-[260px]">{f.hash}</span>
                       <button
@@ -207,13 +217,19 @@ export const ProofSidePanel: React.FC<ProofSidePanelProps> = ({
                       </button>
                     </div>
                     <div className="flex justify-end">
-                      <button
-                        onClick={() => onSelectNode(f.id)}
-                        className="text-[11px] text-brand-700 font-semibold hover:underline inline-flex items-center gap-1"
-                        type="button"
-                      >
-                        Inspect Faculty Node <ArrowRight className="h-3 w-3" />
-                      </button>
+                      {f.isGhost ? (
+                        <button
+                          onClick={() => onSelectNode(f.id)}
+                          className="text-[11px] text-brand-700 font-semibold hover:underline inline-flex items-center gap-1"
+                          type="button"
+                        >
+                          Inspect Faculty Node <ArrowRight className="h-3 w-3" />
+                        </button>
+                      ) : (
+                        <span className="text-[11px] text-emerald-700 font-medium inline-flex items-center gap-1">
+                          <Check className="h-3 w-3" /> Unique Roster Record
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}

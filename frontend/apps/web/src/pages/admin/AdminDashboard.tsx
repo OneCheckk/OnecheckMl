@@ -126,7 +126,7 @@ export const AdminDashboardPage: React.FC = () => {
                 ['/admin/users', 'Users', 'Accounts, roles and activation'],
                 ['/admin/checklists', 'Checklists', 'Required documents per category'],
                 ['/admin/rulepacks', 'Rulepacks', 'Versioned verification rules'],
-                ['/syndicate', 'Syndicate Network', 'Interactive Graph DB fraud web'],
+                ['/syndicate', 'Syndicate Network', 'Interactive Graph DB anomaly network'],
                 ['/audit', 'Audit trail', 'Logged actions and chain verification'],
                 ['/benchmark', 'Benchmark', 'Synthetic evaluation runs'],
               ].map(([to, t, desc]) => (

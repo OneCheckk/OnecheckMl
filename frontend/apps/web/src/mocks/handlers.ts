@@ -36,6 +36,7 @@ import {
   archiveRiskScore,
   archiveAlerts,
 } from './fixtures/archiveData';
+import { getFallbackNodeProof } from '../api/queries';
 
 // In-memory mutable states for MSW session
 let applications = [faultedApplication, cleanApplication, ...archiveApplications];
@@ -1239,56 +1240,10 @@ export const handlers = [
 
   ...route('get', '/api/syndicate/node/:id', ({ params }) => {
     const { id } = params as { id: string };
-    if (id.startsWith('COL')) {
-      return HttpResponse.json({
-        success: true,
-        data: {
-          type: 'college',
-          id,
-          name: id.includes('01') ? 'Apex National Institute of Technology' : 'Paramount College of Engineering & Research',
-          registrationId: `AICTE-${id}`,
-          state: 'Delhi NCR',
-          city: 'Noida',
-          riskScore: 88,
-          riskLevel: 'RED',
-          isCartelMember: true,
-          facultyCount: 14,
-          sharedFacultyCount: 6,
-          facultyList: [
-            { id: 'FAC-1', name: 'Dr. Ramesh Chandra Sharma', department: 'Computer Science', identifierType: 'AADHAAR', hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', isGhost: true },
-            { id: 'FAC-2', name: 'Prof. Sunita K. Deshmukh', department: 'Information Technology', identifierType: 'PAN', hash: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isGhost: true },
-          ],
-          colludingInstitutions: [
-            { id: 'COL-CARTEL-02', name: 'Paramount College of Engineering & Research', state: 'Maharashtra', riskScore: 84 },
-            { id: 'COL-CARTEL-03', name: 'Vanguard Institute of Technical Studies', state: 'Karnataka', riskScore: 82 },
-          ],
-          definitiveProof: {
-            statement: 'Definitive multi-hop graph proof: Participates in a closed 5-node cartel syndicate sharing 6 ghost faculty across 4 institutions.',
-            recommendedAction: 'IMMEDIATE_EVC_INSPECTION_AND_HOLD',
-          },
-        },
-      });
-    }
-
+    const proof = getFallbackNodeProof(id);
     return HttpResponse.json({
       success: true,
-      data: {
-        type: 'faculty',
-        id,
-        hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-        name: 'Dr. Ramesh Chandra Sharma',
-        identifierType: 'AADHAAR',
-        department: 'Computer Science',
-        isGhost: true,
-        associatedColleges: [
-          { id: 'COL-CARTEL-01', name: 'Apex National Institute of Technology', state: 'Delhi NCR', riskScore: 88 },
-          { id: 'COL-CARTEL-02', name: 'Paramount College of Engineering & Research', state: 'Maharashtra', riskScore: 84 },
-        ],
-        definitiveProof: {
-          statement: 'Duplication collision proof: Identifier AADHAAR hash appears simultaneously on active regulatory rosters of 2 distinct institutions.',
-          collisionDetected: true,
-        },
-      },
+      data: proof,
     });
   }),
 
