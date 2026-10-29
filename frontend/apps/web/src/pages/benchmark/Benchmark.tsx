@@ -30,8 +30,12 @@ export const BenchmarkPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     try {
-      await runMutation.mutateAsync(IS_MOCK_MODE ? { n, seed, faultRate, scanRatio } : { n, seed });
-      setSelectedRun(null);
+      const created = await runMutation.mutateAsync(IS_MOCK_MODE ? { n, seed, faultRate, scanRatio } : { n, seed });
+      if (created?.runId) {
+        setSelectedRun(created.runId);
+      } else {
+        setSelectedRun(null);
+      }
     } catch (err) {
       setError(describeApiError(err, 'The benchmark run failed.').message);
     }
